@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>介護SSW 用語フラッシュカード</title>
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #157a5a;
+    --green-light: #e8f7f2;
+    --green-mid: #b2e0d0;
+    --white: #ffffff;
+    --gray: #6b7280;
+    --gray-light: #f3f4f6;
+    --text: #1f2937;
+    --text-sub: #6b7280;
+    --shadow: 0 4px 20px rgba(0,0,0,0.12);
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Noto Sans JP', sans-serif;
+    background: #f0faf6;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: var(--green);
+    color: white;
+    padding: 14px 16px 12px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 10px rgba(29,158,117,0.35);
+  }
+  .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+  .header-title { font-size: 1.05rem; font-weight: bold; line-height: 1.3; }
+  .header-title small { display: block; font-size: 0.7rem; font-weight: normal; opacity: 0.85; margin-top: 1px; }
+  .header-count {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 0.8rem; font-weight: bold; white-space: nowrap;
+  }
+
+  /* ===== CATEGORIES ===== */
+  .cat-wrap {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto; white-space: nowrap;
+    padding: 10px 12px;
+    scrollbar-width: none;
+  }
+  .cat-wrap::-webkit-scrollbar { display: none; }
+  .cat-inner { display: inline-flex; gap: 8px; }
+  .cat-btn {
+    padding: 6px 14px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 0.78rem; font-weight: bold;
+    background: var(--gray-light); color: var(--gray);
+    transition: all .2s; white-space: nowrap;
+  }
+  .cat-btn:hover { background: var(--green-light); color: var(--green); }
+  .cat-btn.active { background: var(--green); color: white; }
+
+  /* ===== MAIN ===== */
+  main { max-width: 600px; margin: 0 auto; padding: 20px 16px 100px; }
+
+  /* ===== PROGRESS ===== */
+  .progress-area { margin-bottom: 16px; }
+  .progress-top { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-sub); margin-bottom: 6px; }
+  .progress-bar { background: #d1fae5; border-radius: 6px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 6px; transition: width .4s; }
+
+  /* ===== CARD ===== */
+  .card-area { perspective: 1200px; margin-bottom: 20px; cursor: pointer; }
+  .card-inner {
+    position: relative; width: 100%;
+    transition: transform 0.55s cubic-bezier(0.4,0.2,0.2,1);
+    transform-style: preserve-3d;
+  }
+  .card-area.flipped .card-inner { transform: rotateY(180deg); }
+
+  .card-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    min-height: 260px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .card-front {
+    background: white;
+  }
+  .card-back {
+    background: var(--green);
+    color: white;
+    position: absolute; top: 0; left: 0; width: 100%;
+    transform: rotateY(180deg);
+  }
+
+  /* front */
+  .card-cat-tag {
+    display: inline-block;
+    background: var(--green-light); color: var(--green);
+    border-radius: 10px; padding: 3px 10px;
+    font-size: 0.7rem; font-weight: bold; margin-bottom: 20px;
+  }
+  .card-term {
+    text-align: center; flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
+  }
+  .term-kanji {
+    font-size: 2.2rem; font-weight: bold; line-height: 1.3; color: var(--text);
+  }
+  .term-reading {
+    font-size: 0.9rem; color: var(--text-sub);
+  }
+  .card-hint {
+    text-align: center; font-size: 0.72rem; color: var(--text-sub);
+    opacity: 0.7; margin-top: 10px;
+  }
+  .flip-icon { font-size: 1rem; }
+
+  /* back */
+  .back-cat-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2); color: white;
+    border-radius: 10px; padding: 3px 10px;
+    font-size: 0.7rem; font-weight: bold; margin-bottom: 16px;
+  }
+  .back-term {
+    font-size: 1.3rem; font-weight: bold; margin-bottom: 16px;
+    text-align: center;
+  }
+  .back-def-label { font-size: 0.68rem; opacity: 0.75; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .back-def-ja {
+    font-size: 0.88rem; line-height: 1.7;
+    background: rgba(255,255,255,0.15); border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 14px;
+  }
+  .back-def-id {
+    font-size: 0.82rem; line-height: 1.6;
+    background: rgba(255,255,255,0.1); border-radius: 10px;
+    padding: 10px 14px; border-left: 3px solid rgba(255,255,255,0.4);
+  }
+  .id-lang { font-size: 0.65rem; opacity: 0.7; display: block; margin-bottom: 3px; }
+
+  /* ===== CONTROLS ===== */
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .ctrl-btn {
+    width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+    font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+    transition: all .2s; font-weight: bold;
+  }
+  .ctrl-btn:hover { transform: scale(1.08); }
+  .btn-prev { background: var(--gray-light); color: var(--gray); }
+  .btn-prev:hover { background: #e5e7eb; }
+  .btn-next { background: var(--green); color: white; box-shadow: 0 4px 14px rgba(29,158,117,0.4); }
+  .btn-next:hover { background: var(--green-dark); }
+  .card-num { font-size: 1rem; font-weight: bold; color: var(--text-sub); text-align: center; flex: 1; }
+
+  /* ===== BOTTOM TOOLBAR ===== */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-top: 1px solid #e5e7eb;
+    padding: 10px 16px 16px;
+    display: flex; gap: 10px; justify-content: center;
+    max-width: 600px; margin: 0 auto;
+  }
+  .bottom-btn {
+    flex: 1; padding: 10px 0; border-radius: 12px; border: none; cursor: pointer;
+    font-size: 0.82rem; font-weight: bold; transition: all .2s;
+  }
+  .btn-shuffle { background: var(--green-light); color: var(--green); }
+  .btn-shuffle:hover { background: var(--green-mid); }
+  .btn-reset { background: #fff3e0; color: #d97706; }
+  .btn-reset:hover { background: #ffe0b2; }
+  .btn-mark { background: var(--gray-light); color: var(--gray); }
+  .btn-mark.marked { background: #fef3c7; color: #d97706; }
+  .btn-mark:hover { background: #e5e7eb; }
+
+  /* ===== RESULT PANEL ===== */
+  .result-panel {
+    display: none; text-align: center;
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 36px 24px;
+  }
+  .result-panel.show { display: block; }
+  .result-panel h2 { font-size: 1.5rem; color: var(--green); margin-bottom: 10px; }
+  .result-panel p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 20px; }
+  .result-panel button {
+    background: var(--green); color: white; border: none;
+    padding: 12px 32px; border-radius: 30px; font-size: 0.95rem; cursor: pointer;
+    font-weight: bold; box-shadow: 0 4px 14px rgba(29,158,117,0.4);
+  }
+
+  /* ===== EMPTY ===== */
+  .empty-msg {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-sub); font-size: 0.9rem;
+  }
+
+  /* ===== LOGIN OVERLAY ===== */
+  #loginOverlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(160deg, #0d6e52 0%, #1D9E75 55%, #2dd4a0 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .login-box {
+    background: white; border-radius: 24px;
+    padding: 40px 32px; width: 100%; max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+  .login-logo { font-size: 2.6rem; margin-bottom: 8px; }
+  .login-title { font-size: 1.25rem; font-weight: bold; color: var(--text); margin-bottom: 4px; }
+  .login-sub { font-size: 0.78rem; color: var(--text-sub); margin-bottom: 28px; line-height: 1.5; }
+  .login-label {
+    text-align: left; font-size: 0.78rem; font-weight: bold;
+    color: var(--text-sub); margin-bottom: 6px; display: block;
+  }
+  .login-input {
+    width: 100%; padding: 13px 16px; border-radius: 12px;
+    border: 2px solid #e5e7eb; font-size: 1rem;
+    outline: none; transition: border-color .2s;
+    font-family: inherit; letter-spacing: 0.1em; text-align: center;
+  }
+  .login-input:focus { border-color: var(--green); }
+  .login-btn {
+    width: 100%; margin-top: 16px; padding: 14px;
+    background: var(--green); color: white; border: none;
+    border-radius: 30px; font-size: 1rem; font-weight: bold;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(29,158,117,0.4);
+    transition: background .2s;
+  }
+  .login-btn:hover { background: var(--green-dark); }
+  .login-error {
+    display: none; margin-top: 12px; padding: 10px 14px;
+    background: #fee2e2; color: #dc2626; border-radius: 10px;
+    font-size: 0.82rem; font-weight: bold;
+  }
+  .login-error.show { display: block; }
+  .login-note { font-size: 0.7rem; color: #9ca3af; margin-top: 18px; line-height: 1.5; }
+
+  /* ===== GLOBAL RUBY TOGGLE BAR ===== */
+  .ruby-bar {
+    background: #f9fafb; border-bottom: 1px solid #e5e7eb;
+    padding: 6px 16px; display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  }
+  .ruby-bar-label { font-size: 0.72rem; color: var(--text-sub); }
+  /* iOSスタイルのトグルスイッチ */
+  .ruby-toggle-wrap {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ruby-toggle-switch {
+    position: relative;
+    width: 46px; height: 26px;
+    background: #d1d5db; border-radius: 13px;
+    border: none; cursor: pointer;
+    transition: background .25s;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .ruby-toggle-switch.on { background: var(--green); }
+  .ruby-toggle-knob {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    border-radius: 50%; background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    transition: transform .25s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: bold; color: #9ca3af;
+    pointer-events: none;
+  }
+  .ruby-toggle-switch.on .ruby-toggle-knob {
+    transform: translateX(20px);
+    color: var(--green);
+  }
+  .ruby-status-text {
+    font-size: 0.72rem; font-weight: bold; color: var(--text-sub);
+    min-width: 24px;
+    transition: color .2s;
+  }
+  .ruby-status-text.on { color: var(--green); }
+  /* ruby表示スタイル */
+  ruby { display: ruby; }
+  rt {
+    display: ruby-text;
+    font-size: 0.5em;
+    font-weight: normal;
+    line-height: 1;
+    text-align: center;
+  }
+  .term-kanji ruby rt { font-size: 0.38em; }
+
+  /* ===== MODE TABS ===== */
+  .mode-tabs {
+    background: white; border-bottom: 2px solid #e5e7eb;
+    display: flex; max-width: 600px; margin: 0 auto;
+  }
+  .mode-tab {
+    flex: 1; padding: 11px 0; border: none; background: none; cursor: pointer;
+    font-size: 0.88rem; font-weight: bold; color: var(--gray);
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .mode-tab:hover { color: var(--green); }
+  .mode-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* ===== QUIZ SCREEN ===== */
+  #quizScreen { display: none; }
+  #quizScreen.active { display: block; }
+  #flashScreen { display: block; }
+  #flashScreen.hidden { display: none; }
+
+  .quiz-score-bar {
+    background: white; border-radius: 12px; padding: 14px 18px;
+    margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .quiz-score-nums { font-size: 0.82rem; color: var(--text-sub); white-space: nowrap; }
+  .quiz-score-nums strong { color: var(--text); font-size: 1rem; }
+  .quiz-mini-bar { flex: 1; background: #e5e7eb; border-radius: 6px; height: 8px; overflow: hidden; }
+  .quiz-mini-fill { height: 100%; background: var(--green); border-radius: 6px; transition: width .4s; }
+  .quiz-score-pct { font-size: 0.9rem; font-weight: bold; color: var(--green); white-space: nowrap; }
+
+  .quiz-qnum { font-size: 0.72rem; color: var(--text-sub); margin-bottom: 10px; }
+
+  .quiz-question-card {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 24px 22px; margin-bottom: 16px;
+  }
+  .quiz-qtype {
+    display: inline-block; font-size: 0.68rem; font-weight: bold;
+    background: var(--green-light); color: var(--green);
+    border-radius: 8px; padding: 3px 10px; margin-bottom: 14px;
+  }
+  .quiz-question-text {
+    font-size: 1.05rem; font-weight: bold; line-height: 1.6; color: var(--text);
+  }
+  .quiz-question-sub {
+    font-size: 0.78rem; color: var(--text-sub); margin-top: 6px; line-height: 1.5;
+  }
+  .quiz-id-toggle {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 14px; padding: 6px 12px;
+    border: 1.5px dashed #9ca3af; border-radius: 20px;
+    background: none; cursor: pointer; font-size: 0.75rem;
+    color: #9ca3af; transition: all .2s; font-weight: bold;
+  }
+  .quiz-id-toggle:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
+  .quiz-id-toggle.active { border-color: #f59e0b; color: #b45309; background: #fef9c3; border-style: solid; }
+  .quiz-id-box {
+    display: none; margin-top: 10px;
+    background: #fffbeb; border-left: 3px solid #f59e0b;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 0.82rem; color: #78350f; line-height: 1.6;
+  }
+  .quiz-id-box.show { display: block; }
+  .quiz-id-box .id-label { font-size: 0.65rem; font-weight: bold; color: #b45309; display: block; margin-bottom: 4px; }
+
+  /* ruby */
+  .quiz-choice ruby { display: ruby; }
+  .quiz-choice rt { display: ruby-text; font-size: 0.5em; font-weight: normal; line-height: 1; }
+
+  .quiz-ruby-row {
+    display: flex; justify-content: flex-end; margin-bottom: 8px;
+  }
+
+  .quiz-choices { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-choice {
+    width: 100%; padding: 14px 18px; border-radius: 12px;
+    border: 2px solid #e5e7eb; background: white; cursor: pointer;
+    font-size: 0.88rem; font-weight: bold; color: var(--text);
+    text-align: left; line-height: 1.6; transition: all .18s;
+  }
+  .quiz-choice:hover:not(:disabled) { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .quiz-choice.correct { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+  .quiz-choice.wrong   { border-color: #dc2626; background: #fee2e2; color: #dc2626; }
+  .quiz-choice.show-correct { border-color: #16a34a; background: #dcfce7; color: #15803d; }
+  .quiz-choice:disabled { cursor: default; }
+
+  .quiz-feedback {
+    display: none; border-radius: 12px; padding: 14px 18px; margin-top: 12px;
+    font-size: 0.85rem; line-height: 1.6;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok  { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .quiz-feedback.ng  { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+  .quiz-feedback .fb-answer { font-weight: bold; margin-bottom: 4px; font-size: 0.95rem; }
+  .quiz-feedback .fb-def { font-size: 0.82rem; margin-top: 6px; opacity: 0.85; }
+
+  .quiz-next-btn {
+    display: none; width: 100%; margin-top: 14px;
+    padding: 14px; border-radius: 30px; border: none; cursor: pointer;
+    background: var(--green); color: white; font-size: 0.95rem; font-weight: bold;
+    box-shadow: 0 4px 14px rgba(29,158,117,0.35); transition: background .2s;
+  }
+  .quiz-next-btn:hover { background: var(--green-dark); }
+  .quiz-next-btn.show { display: block; }
+
+  /* quiz result */
+  .quiz-result {
+    display: none; text-align: center; background: white;
+    border-radius: var(--radius); box-shadow: var(--shadow); padding: 36px 24px;
+  }
+  .quiz-result.show { display: block; }
+  .quiz-result-emoji { font-size: 3rem; margin-bottom: 12px; }
+  .quiz-result h2 { font-size: 1.5rem; color: var(--text); margin-bottom: 6px; }
+  .quiz-result .result-score {
+    font-size: 3rem; font-weight: bold; color: var(--green); margin: 16px 0 4px;
+  }
+  .quiz-result .result-label { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 20px; }
+  .result-breakdown {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px;
+  }
+  .result-cell {
+    background: var(--gray-light); border-radius: 10px; padding: 12px 8px;
+  }
+  .result-cell .rc-num { font-size: 1.4rem; font-weight: bold; }
+  .result-cell .rc-label { font-size: 0.72rem; color: var(--text-sub); margin-top: 2px; }
+  .result-cell.ok .rc-num { color: #16a34a; }
+  .result-cell.ng .rc-num { color: #dc2626; }
+  .result-btns { display: flex; flex-direction: column; gap: 10px; }
+  .result-btn {
+    padding: 13px 0; border-radius: 30px; border: none; cursor: pointer;
+    font-size: 0.92rem; font-weight: bold; transition: all .2s;
+  }
+  .result-btn.primary { background: var(--green); color: white; box-shadow: 0 4px 14px rgba(29,158,117,0.35); }
+  .result-btn.secondary { background: #fff3e0; color: #d97706; }
+  .result-btn.tertiary { background: var(--gray-light); color: var(--gray); }
+
+  /* quiz start screen */
+  .quiz-start-screen {
+    text-align: center; background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 36px 24px;
+  }
+  .quiz-start-screen h2 { font-size: 1.3rem; color: var(--text); margin-bottom: 8px; }
+  .quiz-start-screen p { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 24px; line-height: 1.6; }
+  .quiz-start-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .quiz-opt-btn {
+    padding: 14px 18px; border-radius: 12px; border: 2px solid #e5e7eb;
+    background: white; cursor: pointer; font-size: 0.88rem; font-weight: bold;
+    text-align: left; display: flex; align-items: center; gap: 10px; transition: all .2s;
+  }
+  .quiz-opt-btn:hover { border-color: var(--green); background: var(--green-light); }
+  .quiz-opt-btn.selected { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .quiz-opt-btn .opt-icon { font-size: 1.3rem; }
+  .quiz-opt-btn .opt-text { line-height: 1.3; }
+  .quiz-opt-btn .opt-sub { font-size: 0.72rem; font-weight: normal; color: var(--text-sub); display: block; }
+  .quiz-start-btn {
+    width: 100%; padding: 14px; border-radius: 30px; border: none; cursor: pointer;
+    background: var(--green); color: white; font-size: 1rem; font-weight: bold;
+    box-shadow: 0 4px 14px rgba(29,158,117,0.35); transition: background .2s;
+  }
+  .quiz-start-btn:hover { background: var(--green-dark); }
+
+  /* bottom bar quiz mode */
+  .bottom-bar-quiz {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-top: 1px solid #e5e7eb;
+    padding: 10px 16px 16px;
+    display: none; gap: 10px; justify-content: center;
+    max-width: 600px; margin: 0 auto;
+  }
+  .bottom-bar-quiz.active { display: flex; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 400px) {
+    .term-kanji { font-size: 1.8rem; }
+    .card-face { padding: 22px 18px; min-height: 240px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN OVERLAY ===== -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">🏥</div>
+    <div class="login-title">介護SSW 用語カード</div>
+    <div class="login-sub">特定技能1号「介護」試験対策<br>Kartu Kosakata Perawatan SSW</div>
+    <label class="login-label" for="loginInput">パスワード / Password</label>
+    <div style="position:relative;">
+      <input class="login-input" id="loginInput" type="password"
+        placeholder="パスワードを入力"
+        style="padding-right:48px;"
+        onkeydown="if(event.key==='Enter') doLogin()" />
+      <button id="togglePwBtn" onclick="togglePwVisibility()"
+        type="button"
+        style="position:absolute; right:12px; top:50%; transform:translateY(-50%);
+               background:none; border:none; cursor:pointer; font-size:1.2rem;
+               color:#9ca3af; padding:4px; line-height:1;"
+        title="パスワードを表示/非表示">👁</button>
+    </div>
+    <div class="login-error" id="loginError">❌ パスワードが違います / Password salah</div>
+    <button class="login-btn" onclick="doLogin()">ログイン／Masuk</button>
+    <div class="login-note">このデバイスでは一度入力すると次回から不要です。<br>Di perangkat ini, cukup masukkan sekali.</div>
+  </div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      介護SSW 用語カード
+      <small>特定技能1号「介護」試験対策</small>
+    </div>
+    <div class="header-count" id="headerCount">0 / 0</div>
+  </div>
+</header>
+
+<div style="background:white; border-bottom:1px solid #e5e7eb;">
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabFlash" onclick="switchMode('flash')">🃏 フラッシュカード</button>
+    <button class="mode-tab" id="tabQuiz"  onclick="switchMode('quiz')">📝 4択練習</button>
+  </div>
+</div>
+
+<div class="ruby-bar">
+  <span class="ruby-bar-label">ふりがな</span>
+  <div class="ruby-toggle-wrap">
+    <button class="ruby-toggle-switch" id="globalRubySwitch" onclick="toggleGlobalRuby()">
+      <div class="ruby-toggle-knob">ふ</div>
+    </button>
+    <span class="ruby-status-text" id="globalRubyText">OFF</span>
+  </div>
+</div>
+
+<div class="cat-wrap" id="catWrap">
+  <div class="cat-inner" id="catButtons"></div>
+</div>
+
+<main>
+
+<!-- ===== QUIZ SCREEN ===== -->
+<div id="quizScreen">
+
+  <!-- Start screen -->
+  <div class="quiz-start-screen" id="quizStartScreen">
+    <h2>📝 4択練習</h2>
+    <p>出題形式と問題数を選んでスタート！<br>カテゴリは上のタブで絞り込めます。</p>
+    <div class="quiz-start-options">
+      <button class="quiz-opt-btn selected" id="optMixed" onclick="selectQtype('mixed')">
+        <span class="opt-icon">🔀</span>
+        <span class="opt-text">ミックス出題
+          <span class="opt-sub">「用語→意味」と「意味→用語」をランダムで出題</span>
+          <span class="opt-sub" style="color:#6b7280; margin-top:2px;">Campuran: "istilah→arti" dan "arti→istilah" secara acak</span>
+        </span>
+      </button>
+      <button class="quiz-opt-btn" id="optTerm2Def" onclick="selectQtype('term2def')">
+        <span class="opt-icon">🔍</span>
+        <span class="opt-text">用語の意味を選ぶ
+          <span class="opt-sub">用語が表示され、4つの意味から選ぶ</span>
+          <span class="opt-sub" style="color:#6b7280; margin-top:2px;">Istilah ditampilkan → pilih artinya dari 4 pilihan</span>
+        </span>
+      </button>
+      <button class="quiz-opt-btn" id="optDef2Term" onclick="selectQtype('def2term')">
+        <span class="opt-icon">💬</span>
+        <span class="opt-text">意味から用語を選ぶ
+          <span class="opt-sub">説明文が表示され、4つの用語から選ぶ</span>
+          <span class="opt-sub" style="color:#6b7280; margin-top:2px;">Penjelasan ditampilkan → pilih istilahnya dari 4 pilihan</span>
+        </span>
+      </button>
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <button class="quiz-opt-btn" id="qnum10" onclick="selectQnum(10)" style="flex:1; text-align:center; padding:10px;">10問</button>
+      <button class="quiz-opt-btn selected" id="qnum20" onclick="selectQnum(20)" style="flex:1; text-align:center; padding:10px;">20問</button>
+      <button class="quiz-opt-btn" id="qnumAll" onclick="selectQnum(0)" style="flex:1; text-align:center; padding:10px;">全問</button>
+    </div>
+    <button class="quiz-start-btn" onclick="startQuiz()">スタート ›</button>
+  </div>
+
+  <!-- Question screen -->
+  <div id="quizQuestionScreen" style="display:none;">
+    <div class="quiz-score-bar">
+      <div class="quiz-score-nums"><strong id="qScoreCorrect">0</strong> / <span id="qScoreTotal">0</span> 正解</div>
+      <div class="quiz-mini-bar"><div class="quiz-mini-fill" id="qMiniFill" style="width:0%"></div></div>
+      <div class="quiz-score-pct" id="qScorePct">0%</div>
+    </div>
+
+    <div class="quiz-qnum" id="qNumLabel">第1問 / 20問</div>
+
+    <div class="quiz-question-card">
+      <span class="quiz-qtype" id="qTypeLabel">用語→意味</span>
+      <div class="quiz-question-text" id="qQuestionText">-</div>
+      <div class="quiz-question-sub" id="qQuestionSub"></div>
+      <button class="quiz-id-toggle" id="qIdToggleBtn" onclick="toggleQuizId()">
+        🇮🇩 <span id="qIdToggleLabel">インドネシア語を表示</span>
+      </button>
+      <div class="quiz-id-box" id="qIdBox">
+        <span class="id-label">🇮🇩 Bahasa Indonesia</span>
+        <span id="qIdText"></span>
+      </div>
+    </div>
+
+    <div class="quiz-ruby-row" id="qRubyRow" style="gap:8px; justify-content:flex-end;">
+      <!-- term2def のとき：選択肢インドネシア語トグル -->
+      <button class="quiz-id-toggle" id="qChoiceIdToggleBtn" onclick="toggleChoiceId()" style="display:none;">
+        🇮🇩 <span id="qChoiceIdToggleLabel">インドネシア語なし</span>
+      </button>
+    </div>
+
+    <div class="quiz-choices" id="qChoices">
+      <button class="quiz-choice" id="choice0" onclick="handleAnswer(0)"></button>
+      <button class="quiz-choice" id="choice1" onclick="handleAnswer(1)"></button>
+      <button class="quiz-choice" id="choice2" onclick="handleAnswer(2)"></button>
+      <button class="quiz-choice" id="choice3" onclick="handleAnswer(3)"></button>
+    </div>
+
+    <div class="quiz-feedback" id="qFeedback">
+      <div class="fb-answer" id="fbAnswer"></div>
+      <div class="fb-def" id="fbDef"></div>
+      <div class="fb-def" id="fbDefId" style="margin-top:8px; padding-top:8px; border-top:1px solid rgba(0,0,0,0.08); font-size:0.78rem; opacity:0.8;">
+        <span style="font-size:0.65rem; font-weight:bold; opacity:0.7; display:block; margin-bottom:2px;">🇮🇩 Bahasa Indonesia</span>
+        <span id="fbDefIdText"></span>
+      </div>
+    </div>
+
+    <button class="quiz-next-btn" id="qNextBtn" onclick="nextQuizQuestion()">次の問題 ›</button>
+  </div>
+
+  <!-- Result screen -->
+  <div class="quiz-result" id="quizResultScreen">
+    <div class="quiz-result-emoji" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle">お疲れ様でした！</h2>
+    <div class="result-score" id="resultScoreDisplay">0 / 0</div>
+    <div class="result-label" id="resultScoreLabel">正解率 0%</div>
+    <div class="result-breakdown">
+      <div class="result-cell ok">
+        <div class="rc-num" id="rcCorrect">0</div>
+        <div class="rc-label">✅ 正解</div>
+      </div>
+      <div class="result-cell ng">
+        <div class="rc-num" id="rcWrong">0</div>
+        <div class="rc-label">❌ 不正解</div>
+      </div>
+    </div>
+    <div class="result-btns">
+      <button class="result-btn primary" onclick="retryWrong()" id="retryWrongBtn">❌ 間違えた問題だけ復習</button>
+      <button class="result-btn secondary" onclick="startQuiz()">🔄 同じ設定でもう一度</button>
+      <button class="result-btn tertiary" onclick="showQuizStart()">⚙️ 設定に戻る</button>
+    </div>
+  </div>
+
+</div><!-- /quizScreen -->
+
+<!-- ===== FLASH SCREEN ===== -->
+<div id="flashScreen">
+  <div class="progress-area">
+    <div class="progress-top">
+      <span id="progressLabel">学習中...</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="cardArea" class="card-area" onclick="flipCard()">
+    <div class="card-inner" id="cardInner">
+      <!-- front -->
+      <div class="card-face card-front" id="cardFront">
+        <div>
+          <span class="card-cat-tag" id="frontCat">カテゴリ</span>
+        </div>
+        <div class="card-term">
+          <div class="term-kanji" id="termKanji">-</div>
+          <div class="term-reading" id="termReading">-</div>
+        </div>
+        <div class="card-hint">カードをタップして意味を確認 <span class="flip-icon">↕</span></div>
+      </div>
+      <!-- back -->
+      <div class="card-face card-back" id="cardBack">
+        <div>
+          <span class="back-cat-tag" id="backCat">カテゴリ</span>
+          <div class="back-term" id="backTerm">-</div>
+        </div>
+        <div>
+          <div class="back-def-label">🇯🇵 日本語</div>
+          <div class="back-def-ja" id="defJa">-</div>
+          <div class="back-def-label">🇮🇩 Bahasa Indonesia</div>
+          <div class="back-def-id">
+            <span class="id-lang">Terjemahan</span>
+            <span id="defId">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn btn-prev" onclick="prevCard()">‹</button>
+    <div class="card-num" id="cardNum">- / -</div>
+    <button class="ctrl-btn btn-next" onclick="nextCard()">›</button>
+  </div>
+
+  <div class="result-panel" id="resultPanel">
+    <h2>🎉 完了！</h2>
+    <p id="resultMsg">全カードを見終わりました。</p>
+    <button onclick="restartAll()">もう一度</button>
+  </div>
+
+</div><!-- /flashScreen -->
+
+</main>
+
+<div class="bottom-bar" id="bottomBarFlash">
+  <button class="bottom-btn btn-shuffle" onclick="shuffleCards()">🔀 シャッフル</button>
+  <button class="bottom-btn btn-mark" id="markBtn" onclick="toggleMark()">⭐ スター</button>
+  <button class="bottom-btn btn-reset" onclick="resetProgress()">↺ リセット</button>
+</div>
+
+<div class="bottom-bar-quiz" id="bottomBarQuiz">
+  <button class="bottom-btn btn-shuffle" onclick="showQuizStart()" style="background:var(--green-light);color:var(--green);">⚙️ 設定</button>
+  <button class="bottom-btn btn-reset" onclick="switchMode('flash')" style="background:var(--gray-light);color:var(--gray);">🃏 カードへ</button>
+</div>
+
+<script>
+const CARDS = [
+  { id:1,  category:"介護の基本", term:"自立支援", reading:"じりつしえん", definition_ja:"利用者が自分でできることは自分でしてもらい、できないことだけを介助すること。依存を作らず、残存機能を活かすことが重要。", definition_id:"Dukungan kemandirian, yaitu membiarkan pengguna layanan melakukan sendiri apa yang mampu dilakukan, dan hanya membantu hal yang tidak bisa dilakukan sendiri." },
+  { id:2,  category:"介護の基本", term:"ICF", reading:"アイシーエフ", definition_ja:"国際生活機能分類（International Classification of Functioning）。障害を「心身機能・活動・参加」の3つの視点でとらえるWHOの分類。", definition_id:"Klasifikasi Fungsi Internasional (ICF) oleh WHO. Memandang disabilitas dari tiga aspek: fungsi tubuh, aktivitas, dan partisipasi sosial." },
+  { id:3,  category:"介護の基本", term:"QOL", reading:"キューオーエル", definition_ja:"生活の質（Quality of Life）。身体的・精神的・社会的な満足度を含む、その人らしい豊かな生活の実現を目指す概念。", definition_id:"Kualitas hidup (Quality of Life). Konsep yang mencakup kepuasan fisik, mental, dan sosial untuk mewujudkan kehidupan yang bermakna bagi individu." },
+  { id:4,  category:"介護の基本", term:"ADL", reading:"エーディーエル", definition_ja:"日常生活動作（Activities of Daily Living）。食事・排泄・入浴・更衣・移動など、日常生活に必要な基本的な動作のこと。", definition_id:"Aktivitas Kehidupan Sehari-hari (ADL). Mencakup makan, buang air, mandi, berpakaian, dan berpindah tempat." },
+  { id:5,  category:"介護の基本", term:"IADL", reading:"アイエーディーエル", definition_ja:"手段的日常生活動作（Instrumental ADL）。買い物・料理・金銭管理・電話の使用など、ADLより複雑な生活行為のこと。", definition_id:"Aktivitas Kehidupan Sehari-hari Instrumental. Mencakup berbelanja, memasak, mengelola uang, dan telepon — lebih kompleks dari ADL dasar." },
+  { id:6,  category:"介護の基本", term:"ノーマライゼーション", reading:"のーまらいぜーしょん", definition_ja:"障害のある人も、ない人も、同じ環境で普通の生活を送れるようにするという理念。デンマークのバンク・ミケルセンが提唱。", definition_id:"Prinsip bahwa penyandang disabilitas berhak menjalani kehidupan normal dalam masyarakat, sama seperti orang lain." },
+  { id:7,  category:"介護の基本", term:"アセスメント", reading:"あせすめんと", definition_ja:"利用者の状態・生活状況・希望を多方面から評価・把握する過程。介護計画作成の前に必ず行う。", definition_id:"Proses penilaian menyeluruh terhadap kondisi, situasi kehidupan, dan keinginan pengguna layanan. Dilakukan sebelum membuat rencana perawatan." },
+  { id:8,  category:"介護の基本", term:"介護過程", reading:"かいごかてい", definition_ja:"アセスメント→計画作成→実施→評価の流れで科学的・系統的に介護を行うプロセス。PDCAサイクルとも呼ばれる。", definition_id:"Proses sistematis dalam perawatan: penilaian → perencanaan → pelaksanaan → evaluasi. Disebut juga siklus PDCA." },
+  { id:9,  category:"介護の基本", term:"個別ケア", reading:"こべつけあ", definition_ja:"利用者一人ひとりの意思・希望・生活歴を尊重し、その人に合った介護を提供すること。", definition_id:"Perawatan yang disesuaikan dengan keinginan, harapan, dan riwayat hidup masing-masing individu pengguna layanan." },
+  { id:10, category:"介護の基本", term:"多職種連携", reading:"たしょくしゅれんけい", definition_ja:"医師・看護師・理学療法士・介護福祉士など、異なる専門職が情報を共有しチームで利用者を支援すること。", definition_id:"Kerja sama antar profesi (dokter, perawat, terapis, petugas perawatan) dalam berbagi informasi dan mendukung pengguna layanan secara tim." },
+  { id:11, category:"介護の基本", term:"褥瘡（じょくそう）", reading:"じょくそう", definition_ja:"同じ体位を長時間続けることで皮膚が圧迫され、壊死する状態。「床ずれ」とも呼ばれる。予防には定期的な体位変換が重要。", definition_id:"Luka tekan (dekubitus) akibat tekanan terus-menerus pada kulit. Pencegahannya dengan mengganti posisi tubuh secara berkala." },
+  { id:12, category:"介護の基本", term:"誤嚥（ごえん）", reading:"ごえん", definition_ja:"食べ物や液体が食道ではなく気管に入ってしまうこと。高齢者に起こりやすく、誤嚥性肺炎の原因になる。", definition_id:"Aspirasi, yaitu makanan atau cairan masuk ke saluran napas bukan ke kerongkongan. Sering terjadi pada lansia dan dapat menyebabkan pneumonia." },
+  { id:13, category:"介護の基本", term:"移乗介助", reading:"いじょうかいじょ", definition_ja:"ベッドから車いす、車いすからトイレなど、異なる場所へ利用者を移動させる介助。ブレーキの確認が必須。", definition_id:"Bantuan pemindahan pengguna dari satu tempat ke tempat lain. Wajib memastikan rem kursi roda terkunci sebelum memindahkan." },
+  { id:14, category:"介護の基本", term:"体位変換", reading:"たいいへんかん", definition_ja:"寝たきりの利用者の体の向きや姿勢を定期的に変えること。褥瘡予防のため、通常2時間ごとに行う。", definition_id:"Pergantian posisi tubuh pengguna yang tidak bisa bergerak sendiri. Biasanya dilakukan setiap 2 jam untuk mencegah luka tekan." },
+  { id:15, category:"介護の基本", term:"清拭（せいしき）", reading:"せいしき", definition_ja:"入浴が難しい利用者の体を、濡れたタオルなどで拭いて清潔にする介助。", definition_id:"Membersihkan tubuh pengguna yang tidak bisa mandi dengan handuk basah atau kain lembab." },
+  { id:16, category:"介護の基本", term:"残存機能", reading:"ざんぞんきのう", definition_ja:"障害や疾患があっても、利用者に残っている能力・機能のこと。自立支援では残存機能を最大限活かすことが重要。", definition_id:"Kemampuan atau fungsi yang masih dimiliki pengguna meskipun ada keterbatasan. Penting untuk dimaksimalkan demi kemandirian." },
+  { id:17, category:"介護の基本", term:"尊厳", reading:"そんげん", definition_ja:"人として当然もっている価値・品位のこと。介護においては、利用者の尊厳を守ることが最も基本的な理念とされる。", definition_id:"Harga diri dan martabat yang dimiliki setiap manusia. Dalam perawatan, menjaga martabat pengguna adalah prinsip paling dasar." },
+  { id:18, category:"介護の基本", term:"インフォームドコンセント", reading:"いんふぉーむどこんせんと", definition_ja:"医療・介護の専門家が利用者に十分な情報を提供し、理解・同意を得た上でケアを行うこと。", definition_id:"Persetujuan terinformasi: memberikan informasi yang cukup kepada pengguna dan mendapatkan persetujuan sebelum memberikan perawatan." },
+  { id:19, category:"こころとからだのしくみ", term:"廃用症候群", reading:"はいようしょうこうぐん", definition_ja:"長期臥床や活動低下によって生じる筋力低下・関節拘縮・肺炎などの二次的合併症。早期リハビリで予防する。", definition_id:"Sindrom disuse akibat berbaring lama: kelemahan otot, kontraktur sendi, dan pneumonia. Dicegah dengan rehabilitasi dini." },
+  { id:20, category:"こころとからだのしくみ", term:"嚥下（えんげ）", reading:"えんげ", definition_ja:"食べ物や飲み物を口から胃に送り込む動作。高齢者は嚥下機能が低下しやすく、誤嚥のリスクが高まる。", definition_id:"Menelan, yaitu gerakan mengirimkan makanan dari mulut ke lambung. Fungsi menelan sering menurun pada lansia, meningkatkan risiko aspirasi." },
+  { id:21, category:"こころとからだのしくみ", term:"拘縮（こうしゅく）", reading:"こうしゅく", definition_ja:"関節や筋肉が固まって動きにくくなった状態。廃用症候群の一つ。ストレッチや体位変換で予防する。", definition_id:"Kontraktur, yaitu sendi atau otot yang mengeras dan sulit digerakkan. Bagian dari sindrom disuse. Dicegah dengan peregangan dan pergantian posisi." },
+  { id:22, category:"こころとからだのしくみ", term:"浮腫（ふしゅ）", reading:"ふしゅ", definition_ja:"体の組織に過剰な水分が溜まってむくんだ状態。心疾患・腎疾患・低栄養などが原因となることがある。", definition_id:"Edema, yaitu pembengkakan akibat penumpukan cairan di jaringan tubuh. Bisa disebabkan oleh penyakit jantung, ginjal, atau kurang gizi." },
+  { id:23, category:"こころとからだのしくみ", term:"バイタルサイン", reading:"ばいたるさいん", definition_ja:"体温・血圧・脈拍・呼吸数の4つを指す生命徴候。利用者の健康状態を把握するために定期的に測定する。", definition_id:"Tanda-tanda vital: suhu tubuh, tekanan darah, denyut nadi, dan frekuensi napas. Diukur berkala untuk memantau kondisi kesehatan pengguna." },
+  { id:24, category:"こころとからだのしくみ", term:"血圧", reading:"けつあつ", definition_ja:"心臓が血液を送り出す際に血管にかかる圧力。正常値は収縮期血圧120mmHg未満・拡張期80mmHg未満とされる。", definition_id:"Tekanan darah. Nilai normal: sistolik <120 mmHg, diastolik <80 mmHg." },
+  { id:25, category:"こころとからだのしくみ", term:"SpO2（酸素飽和度）", reading:"えすぴーおーつー", definition_ja:"血液中のヘモグロビンに結合している酸素の割合。パルスオキシメーターで測定。正常値は96〜100%。", definition_id:"Saturasi oksigen dalam darah. Diukur dengan pulse oximeter. Nilai normal 96–100%." },
+  { id:26, category:"こころとからだのしくみ", term:"脱水（だっすい）", reading:"だっすい", definition_ja:"体内の水分が不足した状態。高齢者は口渇感が弱く起こりやすい。尿量減少・口腔乾燥・意識障害などが症状。", definition_id:"Dehidrasi. Lansia rentan karena berkurangnya rasa haus. Gejalanya: penurunan urin, mulut kering, gangguan kesadaran." },
+  { id:27, category:"こころとからだのしくみ", term:"便秘（べんぴ）", reading:"べんぴ", definition_ja:"排便が困難または回数が著しく少ない状態。高齢者は運動不足・水分不足・食物繊維不足などで起こりやすい。", definition_id:"Sembelit, yaitu kesulitan buang air besar. Lansia rentan karena kurang gerak, kurang minum, dan kurang serat." },
+  { id:28, category:"こころとからだのしくみ", term:"骨粗鬆症", reading:"こつそしょうしょう", definition_ja:"骨密度が低下し、骨がもろくなった状態。高齢女性に多く、転倒による骨折リスクが高くなる。", definition_id:"Osteoporosis, yaitu tulang menjadi rapuh akibat penurunan kepadatan. Sering terjadi pada wanita lansia dan meningkatkan risiko patah tulang." },
+  { id:29, category:"こころとからだのしくみ", term:"老化（ろうか）", reading:"ろうか", definition_ja:"加齢とともに身体・精神機能が低下すること。視力・聴力の低下、筋力の低下、免疫機能の低下などが起きる。", definition_id:"Penuaan, yaitu penurunan fungsi fisik dan mental seiring usia. Termasuk penurunan penglihatan, pendengaran, kekuatan otot, dan imun." },
+  { id:30, category:"こころとからだのしくみ", term:"フレイル", reading:"ふれいる", definition_ja:"加齢によって心身の機能が低下し、要介護状態になりやすい虚弱な状態。早期発見・介入で要介護化を予防できる。", definition_id:"Frailty, yaitu kondisi lemah akibat penuaan yang rentan membutuhkan perawatan. Dapat dicegah dengan deteksi dini dan intervensi." },
+  { id:31, category:"こころとからだのしくみ", term:"マズローの欲求階層説", reading:"まずろーのよっきゅうかいそうせつ", definition_ja:"人間の欲求を5段階（生理的・安全・所属・承認・自己実現）に分類した理論。介護では低次の欲求から満たすことが基本。", definition_id:"Teori hierarki kebutuhan Maslow: fisiologis, keamanan, sosial, penghargaan, dan aktualisasi diri." },
+  { id:32, category:"コミュニケーション技術", term:"傾聴（けいちょう）", reading:"けいちょう", definition_ja:"相手の言葉だけでなく感情にも注意を向け、共感しながら聴くこと。介護の現場で重要なコミュニケーションスキル。", definition_id:"Mendengarkan aktif dengan memperhatikan perasaan lawan bicara. Keterampilan komunikasi penting dalam perawatan." },
+  { id:33, category:"コミュニケーション技術", term:"共感（きょうかん）", reading:"きょうかん", definition_ja:"相手の気持ちや立場を理解し、同じように感じようとすること。「つらいですね」などの言葉で示す。", definition_id:"Empati, yaitu memahami dan merasakan apa yang dirasakan orang lain. Ditunjukkan dengan kata-kata seperti 'Itu pasti sulit ya'." },
+  { id:34, category:"コミュニケーション技術", term:"非言語コミュニケーション", reading:"ひげんごこみゅにけーしょん", definition_ja:"表情・視線・身振り・姿勢・声のトーンなど、言葉以外で伝えるコミュニケーション。", definition_id:"Komunikasi nonverbal menggunakan ekspresi wajah, kontak mata, gerakan tubuh, postur, dan nada suara." },
+  { id:35, category:"コミュニケーション技術", term:"開かれた質問", reading:"ひらかれたしつもん", definition_ja:"「どのような気分ですか」など、自由に答えられる質問（オープンクエスチョン）。相手の気持ちや考えを引き出すのに有効。", definition_id:"Pertanyaan terbuka (open question) yang memungkinkan respons bebas. Efektif untuk menggali pikiran dan perasaan." },
+  { id:36, category:"コミュニケーション技術", term:"閉じた質問", reading:"とじたしつもん", definition_ja:"「はい」「いいえ」で答えられる質問（クローズドクエスチョン）。確認・整理に使いやすいが一方的になりやすい。", definition_id:"Pertanyaan tertutup (closed question) yang dijawab 'ya' atau 'tidak'. Berguna untuk konfirmasi, tapi bisa membatasi percakapan." },
+  { id:37, category:"コミュニケーション技術", term:"受容（じゅよう）", reading:"じゅよう", definition_ja:"相手の気持ちや行動を、評価や批判をせずにそのまま受け入れること。信頼関係の構築に不可欠。", definition_id:"Penerimaan tanpa menilai atau mengkritik perasaan atau perilaku orang lain. Penting untuk membangun kepercayaan." },
+  { id:38, category:"コミュニケーション技術", term:"声かけ", reading:"こえかけ", definition_ja:"ケアを行う前に利用者に声をかけて意思確認をすること。突然のケアは利用者に不安を与えるため必ず行う。", definition_id:"Menyapa pengguna sebelum melakukan perawatan untuk mendapatkan persetujuan. Penting agar tidak mengejutkan atau membuat cemas." },
+  { id:39, category:"コミュニケーション技術", term:"ラポール", reading:"らぽーる", definition_ja:"信頼関係のこと。介護者と利用者の間に良いラポールが築かれると、コミュニケーションが円滑になる。", definition_id:"Hubungan kepercayaan antara petugas dan pengguna layanan. Rapor yang baik memperlancar komunikasi dan perawatan." },
+  { id:40, category:"コミュニケーション技術", term:"バーバルコミュニケーション", reading:"ばーばるこみゅにけーしょん", definition_ja:"言語を用いたコミュニケーション。話し言葉・書き言葉・手話なども含まれる。", definition_id:"Komunikasi verbal menggunakan bahasa lisan, tulisan, maupun bahasa isyarat." },
+  { id:41, category:"生活支援技術", term:"食事介助", reading:"しょくじかいじょ", definition_ja:"食事が自力でできない利用者を介助すること。誤嚥に注意し、座位・食べるペース・食形態を調整する。", definition_id:"Bantuan makan bagi pengguna yang tidak bisa makan sendiri. Perhatikan posisi duduk, kecepatan makan, dan bentuk makanan." },
+  { id:42, category:"生活支援技術", term:"口腔ケア", reading:"こうくうけあ", definition_ja:"口の中を清潔に保つケア。誤嚥性肺炎の予防・食欲向上・口臭予防などの効果がある。", definition_id:"Perawatan kebersihan mulut. Mencegah pneumonia aspirasi, meningkatkan nafsu makan, dan mencegah bau mulut." },
+  { id:43, category:"生活支援技術", term:"入浴介助", reading:"にゅうよくかいじょ", definition_ja:"入浴が困難な利用者を安全に入浴させるための介助。転倒・急激な温度変化（ヒートショック）に注意する。", definition_id:"Bantuan mandi bagi pengguna yang kesulitan mandi sendiri. Waspadai risiko jatuh dan perubahan suhu mendadak." },
+  { id:44, category:"生活支援技術", term:"排泄介助", reading:"はいせつかいじょ", definition_ja:"排尿・排便の介助。トイレ・ポータブルトイレ・おむつなど方法は様々。利用者の尊厳を守ることが重要。", definition_id:"Bantuan buang air kecil dan besar. Metodenya beragam. Menjaga martabat pengguna sangat penting." },
+  { id:45, category:"生活支援技術", term:"更衣介助", reading:"こういかいじょ", definition_ja:"着替えの介助。麻痺がある場合は「脱健着患（だっけんちゃっかん）」、つまり健側から脱ぎ、患側から着る。", definition_id:"Bantuan berpakaian. Pada kelumpuhan satu sisi: lepas dari sisi sehat dulu, kenakan dari sisi yang lumpuh dulu." },
+  { id:46, category:"生活支援技術", term:"脱健着患", reading:"だっけんちゃっかん", definition_ja:"片麻痺の利用者の更衣における原則。「健側（動く方）から脱ぎ、患側（動かない方）から着る」という手順。", definition_id:"Prinsip berpakaian pada hemiplegi: lepas dari sisi yang sehat dulu, kenakan dari sisi yang lumpuh dulu." },
+  { id:47, category:"生活支援技術", term:"歩行介助", reading:"ほこうかいじょ", definition_ja:"歩行が不安定な利用者の歩行を補助すること。基本は利用者の患側・後方に位置して介助する。", definition_id:"Bantuan berjalan. Posisi dasar pendamping adalah di sisi yang lemah dan sedikit di belakang pengguna." },
+  { id:48, category:"生活支援技術", term:"車いす操作", reading:"くるまいすそうさ", definition_ja:"車いすの安全な操作方法。段差を下りる際は後ろ向き、上る際は前向きが基本。必ずブレーキを確認してから移乗する。", definition_id:"Mengoperasikan kursi roda dengan aman. Turun tangga mundur, naik tangga maju. Selalu kunci rem sebelum pemindahan." },
+  { id:49, category:"生活支援技術", term:"福祉用具", reading:"ふくしようぐ", definition_ja:"介護を必要とする人の自立を助けるための用具。車いす・歩行器・介護ベッド・入浴補助用具などがある。", definition_id:"Alat bantu untuk mendukung kemandirian. Termasuk kursi roda, walker, tempat tidur perawatan, dan alat bantu mandi." },
+  { id:50, category:"生活支援技術", term:"ポジショニング", reading:"ぽじしょにんぐ", definition_ja:"クッションや枕を使って利用者の体位を安楽・安全に保つこと。褥瘡予防・拘縮予防・誤嚥予防などが目的。", definition_id:"Pengaturan posisi tubuh menggunakan bantal untuk kenyamanan dan keamanan. Mencegah luka tekan, kontraktur, dan aspirasi." },
+  { id:51, category:"生活支援技術", term:"食形態（しょくけいたい）", reading:"しょくけいたい", definition_ja:"利用者の嚥下機能に合わせた食事の形状・硬さの調整。普通食・きざみ食・ミキサー食・とろみ食などの段階がある。", definition_id:"Penyesuaian bentuk dan tekstur makanan sesuai kemampuan menelan. Meliputi makanan biasa, cincang, blender, dan kental." },
+  { id:52, category:"生活支援技術", term:"ボディメカニクス", reading:"ぼでぃめかにくす", definition_ja:"人体の骨格・筋肉・重心を利用した介護技術。腰への負担を減らし、少ない力で効率よく介助するための原則。", definition_id:"Prinsip mekanika tubuh dalam perawatan untuk mengurangi beban punggung dan bekerja lebih efisien." },
+  { id:53, category:"生活支援技術", term:"リハビリテーション", reading:"りはびりてーしょん", definition_ja:"障害・疾患によって失った機能を回復・維持するための訓練。身体的・精神的・社会的な自立を目指す。", definition_id:"Rehabilitasi untuk memulihkan fungsi yang hilang. Bertujuan mencapai kemandirian fisik, mental, dan sosial." },
+  { id:54, category:"生活支援技術", term:"機能訓練", reading:"きのうくんれん", definition_ja:"身体機能の維持・改善のための訓練。介護施設では機能訓練指導員（理学療法士等）が担当する。", definition_id:"Latihan untuk mempertahankan atau meningkatkan fungsi tubuh. Dilakukan oleh fisioterapis atau instruktur latihan fungsional." },
+  { id:55, category:"生活支援技術", term:"ヒートショック", reading:"ひーとしょっく", definition_ja:"急激な温度変化によって血圧が激しく変動し、心筋梗塞・脳卒中などを起こすこと。入浴介助時に特に注意が必要。", definition_id:"Perubahan tekanan darah mendadak akibat perubahan suhu ekstrem. Dapat menyebabkan serangan jantung atau stroke. Waspadai saat membantu mandi." },
+  { id:56, category:"生活支援技術", term:"褥瘡予防", reading:"じょくそうよぼう", definition_ja:"同じ体位を長時間続けることで皮膚が圧迫され壊死する褥瘡を防ぐこと。2時間ごとの体位変換・栄養管理・皮膚の清潔が重要。", definition_id:"Pencegahan luka tekan dengan mengganti posisi setiap 2 jam, menjaga nutrisi, dan kebersihan kulit." },
+  { id:57, category:"認知症", term:"見当識障害", reading:"けんとうしきしょうがい", definition_ja:"現在の日時・場所・周囲の人物などが正確に認識できなくなる状態。認知症の中核症状の一つ。", definition_id:"Disorientasi, yaitu ketidakmampuan mengenali waktu, tempat, dan orang. Salah satu gejala utama demensia." },
+  { id:58, category:"認知症", term:"BPSD", reading:"ビーピーエスディー", definition_ja:"認知症の行動・心理症状のこと。徘徊・暴言・幻覚・不眠・不穏などが含まれる。", definition_id:"Gejala perilaku dan psikologis demensia. Meliputi berkeliaran, bicara kasar, halusinasi, insomnia, dan kegelisahan." },
+  { id:59, category:"認知症", term:"徘徊（はいかい）", reading:"はいかい", definition_ja:"認知症の利用者が目的なく歩き回り、行方不明になるリスクがある状態。BPSDの一つで、安全確保が重要。", definition_id:"Penderita demensia berjalan tanpa tujuan dan berisiko hilang. Termasuk BPSD, perlu pengamanan lingkungan." },
+  { id:60, category:"認知症", term:"回想法", reading:"かいそうほう", definition_ja:"昔の写真・音楽・道具などを使い、過去の思い出を語り合う認知症ケアの手法。精神的安定をもたらす。", definition_id:"Terapi reminisens menggunakan foto, musik, atau benda lama untuk membawa ketenangan psikologis penderita demensia." },
+  { id:61, category:"認知症", term:"中核症状", reading:"ちゅうかくしょうじょう", definition_ja:"認知症の直接の原因となる脳の障害による症状。記憶障害・見当識障害・判断力の低下・失語・失行など。", definition_id:"Gejala inti demensia akibat kerusakan otak: gangguan memori, disorientasi, penurunan penilaian, afasia, dan apraksia." },
+  { id:62, category:"認知症", term:"周辺症状（BPSD）", reading:"しゅうへんしょうじょう", definition_ja:"認知症の中核症状に、本人の性格・環境・人間関係などが影響して現れる行動・心理症状。BPSDとも呼ばれる。", definition_id:"Gejala perilaku dan psikologis (BPSD) yang muncul karena pengaruh kepribadian, lingkungan, dan hubungan sosial." },
+  { id:63, category:"認知症", term:"アルツハイマー型認知症", reading:"あるつはいまーがたにんちしょう", definition_ja:"認知症の中で最も多い種類。脳内にアミロイドβが蓄積し神経細胞が徐々に壊れる。物忘れから始まることが多い。", definition_id:"Jenis demensia paling umum. Protein amiloid-beta menumpuk dan merusak sel saraf. Biasanya dimulai dengan pelupa." },
+  { id:64, category:"認知症", term:"血管性認知症", reading:"けっかんせいにんちしょう", definition_ja:"脳梗塞・脳出血などの脳血管障害によって起こる認知症。症状が段階的に進行する。高血圧・糖尿病が危険因子。", definition_id:"Demensia akibat gangguan pembuluh darah otak. Gejalanya memburuk secara bertahap. Faktor risiko: hipertensi dan diabetes." },
+  { id:65, category:"認知症", term:"レビー小体型認知症", reading:"れびーしょうたいがたにんちしょう", definition_ja:"脳にレビー小体という異常タンパクが蓄積する認知症。幻視（実際にないものが見える）とパーキンソン症状が特徴。", definition_id:"Demensia dengan badan Lewy. Ditandai dengan halusinasi visual dan gejala Parkinson." },
+  { id:66, category:"認知症", term:"パーソン・センタード・ケア", reading:"ぱーそんせんたーどけあ", definition_ja:"認知症の人を「人」として尊重し、その人の視点・感情・歴史を大切にするケアの考え方。トム・キットウッドが提唱。", definition_id:"Pendekatan perawatan yang menghormati penderita demensia sebagai manusia, memperhatikan sudut pandang, perasaan, dan riwayat hidup mereka." },
+  { id:67, category:"認知症", term:"バリデーション", reading:"ばりでーしょん", definition_ja:"認知症の人の言動を否定せず、感情を受け止めてコミュニケーションをとる技法。ナオミ・フェイルが開発。", definition_id:"Teknik komunikasi yang tidak menyangkal ucapan penderita demensia, melainkan menerima dan merespons perasaan mereka." },
+  { id:68, category:"認知症", term:"記憶障害", reading:"きおくしょうがい", definition_ja:"新しいことを覚えられない・以前のことを思い出せなくなる症状。認知症の中核症状の中心的な症状。", definition_id:"Gangguan memori: kesulitan mengingat hal baru atau hal yang sudah lama. Gejala inti utama demensia." },
+  { id:69, category:"認知症", term:"認知症サポーター", reading:"にんちしょうさぽーたー", definition_ja:"認知症について正しく理解し、認知症の人や家族を温かく見守り支援するボランティア。オレンジリングが目印。", definition_id:"Sukarelawan yang memahami demensia dan mendukung penderita beserta keluarganya. Ditandai dengan gelang oranye." },
+  { id:70, category:"法律・制度", term:"要介護認定", reading:"ようかいごにんてい", definition_ja:"介護保険サービスを利用するために必要な審査。要支援1〜2・要介護1〜5の7段階に区分される。", definition_id:"Penilaian kebutuhan perawatan untuk asuransi perawatan. Dibagi 7 tingkat: Yō Shien 1–2 dan Yō Kaigo 1–5." },
+  { id:71, category:"法律・制度", term:"守秘義務", reading:"しゅひぎむ", definition_ja:"業務で知り得た利用者の個人情報を、正当な理由なく他者に漏らしてはならない義務。法律で定められている。", definition_id:"Kewajiban menjaga kerahasiaan informasi pribadi pengguna. Diatur dalam undang-undang." },
+  { id:72, category:"法律・制度", term:"身体拘束", reading:"しんたいこうそく", definition_ja:"利用者の行動を物理的に制限すること。原則禁止。例外には「切迫性・非代替性・一時性」の3要件が必要。", definition_id:"Pembatasan fisik pengguna. Pada prinsipnya dilarang, kecuali memenuhi 3 syarat: mendesak, tidak ada alternatif, bersifat sementara." },
+  { id:73, category:"法律・制度", term:"介護保険制度", reading:"かいごほけんせいど", definition_ja:"40歳以上が保険料を納め、要介護・要支援と認定された人が介護サービスを受けられる社会保険制度。2000年施行。", definition_id:"Sistem asuransi perawatan Jepang. Warga ≥40 tahun membayar premi. Berlaku sejak tahun 2000." },
+  { id:74, category:"法律・制度", term:"ケアマネジャー", reading:"けあまねじゃー", definition_ja:"介護支援専門員のこと。利用者のアセスメントを行い、ケアプランを作成・調整する専門職。", definition_id:"Care manager (介護支援専門員). Profesional yang menilai kebutuhan pengguna dan membuat rencana perawatan." },
+  { id:75, category:"法律・制度", term:"ケアプラン", reading:"けあぷらん", definition_ja:"介護サービス計画書のこと。利用者の状態・希望をもとにケアマネジャーが作成し、どのサービスをどのくらい使うかを定める。", definition_id:"Rencana layanan perawatan yang dibuat care manager berdasarkan kondisi dan keinginan pengguna." },
+  { id:76, category:"法律・制度", term:"特別養護老人ホーム", reading:"とくべつようごろうじんほーむ", definition_ja:"要介護3以上の高齢者が入居できる介護保険施設。「特養」と略される。24時間介護が提供される。", definition_id:"Panti jompo khusus untuk lansia dengan kebutuhan perawatan tingkat 3 ke atas. Disebut 'Tokuyo'. Perawatan 24 jam." },
+  { id:77, category:"法律・制度", term:"訪問介護", reading:"ほうもんかいご", definition_ja:"ホームヘルパーが利用者の自宅を訪問し、身体介護や生活援助を行うサービス。居宅サービスの一つ。", definition_id:"Layanan kunjungan ke rumah oleh pembantu perawatan. Mencakup perawatan fisik dan bantuan kehidupan sehari-hari." },
+  { id:78, category:"法律・制度", term:"デイサービス", reading:"でいさーびす", definition_ja:"通所介護のこと。利用者が施設に通い、食事・入浴・機能訓練などのサービスを日帰りで受ける。", definition_id:"Layanan perawatan harian di fasilitas. Pengguna datang dan menerima makan, mandi, serta latihan, lalu pulang hari itu." },
+  { id:79, category:"法律・制度", term:"成年後見制度", reading:"せいねんこうけんせいど", definition_ja:"判断能力が不十分な方を保護・支援するための法律制度。後見人が本人に代わり財産管理や契約を行う。", definition_id:"Sistem wali orang dewasa untuk melindungi orang yang memiliki keterbatasan dalam pengambilan keputusan." },
+  { id:80, category:"法律・制度", term:"高齢者虐待防止法", reading:"こうれいしゃぎゃくたいぼうしほう", definition_ja:"高齢者への虐待（身体的・精神的・性的・経済的・放棄）を防止し、被害者を保護するための法律（2006年施行）。", definition_id:"Undang-undang pencegahan kekerasan terhadap lansia (berlaku 2006). Melindungi dari kekerasan fisik, mental, seksual, ekonomi, dan penelantaran." },
+  { id:81, category:"法律・制度", term:"地域包括ケアシステム", reading:"ちいきほうかつけあしすてむ", definition_ja:"住み慣れた地域で自分らしい暮らしを最後まで続けられるよう、住まい・医療・介護・予防・生活支援を一体的に提供する仕組み。", definition_id:"Sistem perawatan komunitas terpadu yang menyediakan perumahan, medis, perawatan, pencegahan, dan dukungan kehidupan secara terintegrasi." },
+  { id:82, category:"法律・制度", term:"地域包括支援センター", reading:"ちいきほうかつしえんせんたー", definition_ja:"高齢者の総合相談窓口。保健師・社会福祉士・ケアマネジャーが連携し、介護予防や権利擁護などの支援を行う。", definition_id:"Pusat dukungan komunitas terpadu untuk lansia. Tim dari perawat kesehatan, pekerja sosial, dan care manager." },
+  { id:83, category:"法律・制度", term:"虐待（ぎゃくたい）", reading:"ぎゃくたい", definition_ja:"身体的・心理的・性的・経済的な暴力や、ネグレクト（放棄）のこと。発見した場合は通報義務がある。", definition_id:"Kekerasan fisik, psikologis, seksual, ekonomi, atau penelantaran. Jika ditemukan, wajib dilaporkan." },
+  { id:84, category:"法律・制度", term:"個人情報保護法", reading:"こじんじょうほうほごほう", definition_ja:"個人の氏名・住所・生年月日などの個人情報を適切に管理し、本人の権利を守るための法律。介護現場でも厳守。", definition_id:"Undang-undang perlindungan informasi pribadi. Wajib dipatuhi di tempat kerja perawatan." },
+  { id:85, category:"法律・制度", term:"特定技能1号（介護）", reading:"とくていぎのういちごう", definition_ja:"介護分野で就労できる在留資格。介護技能評価試験・介護日本語評価試験・日本語試験（N4以上）に合格が必要。", definition_id:"Status izin tinggal untuk bekerja di bidang perawatan. Perlu lulus ujian keterampilan, ujian bahasa Jepang perawatan, dan JLPT N4." },
+  { id:86, category:"安全", term:"ヒヤリハット", reading:"ひやりはっと", definition_ja:"事故には至らなかったが、「ヒヤリ」としたり「ハット」した出来事。記録・共有することで事故予防に活かす。", definition_id:"Kejadian hampir celaka yang tidak sampai menjadi kecelakaan. Dicatat dan dibagikan untuk pencegahan." },
+  { id:87, category:"安全", term:"感染経路", reading:"かんせんけいろ", definition_ja:"病原体が人に伝わる経路。飛沫感染・接触感染・空気感染・経口感染などがある。", definition_id:"Jalur penularan penyakit: droplet, kontak, udara, dan oral." },
+  { id:88, category:"安全", term:"標準予防策", reading:"ひょうじゅんよぼうさく", definition_ja:"スタンダードプリコーション。すべての患者・利用者の血液・体液・排泄物は感染性があるとみなして行う感染予防の基本対策。", definition_id:"Kewaspadaan standar. Semua darah, cairan tubuh, dan ekskreta dianggap berpotensi menular dan harus dicegah." },
+  { id:89, category:"安全", term:"手洗い（てあらい）", reading:"てあらい", definition_ja:"感染予防の基本。ケアの前後・排泄介助後・食事介助前後などに行う。流水と石鹸で30秒以上が目安。", definition_id:"Dasar pencegahan infeksi. Dilakukan sebelum/sesudah perawatan. Minimal 30 detik dengan sabun dan air mengalir." },
+  { id:90, category:"安全", term:"転倒予防", reading:"てんとうよぼう", definition_ja:"高齢者の転倒を防ぐための環境整備・介助。手すりの設置・段差の解消・滑り止めマット・適切な靴の着用などが対策。", definition_id:"Pencegahan jatuh pada lansia: pemasangan pegangan, menghilangkan undakan, keset anti selip, dan alas kaki yang tepat." },
+  { id:91, category:"安全", term:"PPE（個人防護具）", reading:"ぴーぴーいー・こじんぼうごぐ", definition_ja:"感染症から介護者を守るための装備。手袋・マスク・ガウン・ゴーグルなど。使用後は適切に廃棄する。", definition_id:"Alat pelindung diri untuk melindungi petugas dari penyakit menular: sarung tangan, masker, gaun, dan kacamata." },
+  { id:92, category:"安全", term:"誤薬（ごやく）", reading:"ごやく", definition_ja:"薬を間違って与えること（種類・量・人・時間の誤り）。介護現場では重大な事故になり得る。薬の確認は3回行う。", definition_id:"Pemberian obat yang salah (jenis, dosis, orang, atau waktu). Lakukan pengecekan obat 3 kali untuk mencegah kesalahan." },
+  { id:93, category:"安全", term:"ハインリッヒの法則", reading:"はいんりっひのほうそく", definition_ja:"1件の重大事故の背後には29件の軽微な事故、300件のヒヤリハットがあるという経験則。事故予防の考え方の基本。", definition_id:"Hukum Heinrich: di balik 1 kecelakaan serius terdapat 29 insiden kecil dan 300 kejadian hampir celaka." },
+  { id:94, category:"安全", term:"窒息（ちっそく）", reading:"ちっそく", definition_ja:"異物が気道をふさいで呼吸できなくなった状態。食事中の誤嚥で起こりやすい。ハイムリック法で対処する。", definition_id:"Tersedak akibat obstruksi jalan napas. Sering terjadi saat makan. Ditangani dengan manuver Heimlich." },
+  { id:95, category:"安全", term:"AED", reading:"えーいーでぃー", definition_ja:"自動体外式除細動器。心室細動などに電気ショックを与えて心拍を回復させる装置。公共施設に設置義務がある。", definition_id:"Defibrilator Eksternal Otomatis. Memberikan kejutan listrik untuk memulihkan detak jantung. Wajib tersedia di fasilitas publik." },
+  { id:96, category:"安全", term:"リスクマネジメント", reading:"りすくまねじめんと", definition_ja:"介護現場での事故リスクを特定・分析し、予防策を講じて事故を未然に防ぐ取り組み。ヒヤリハットの収集が重要。", definition_id:"Identifikasi, analisis, dan pencegahan risiko kecelakaan di perawatan. Pengumpulan laporan hampir celaka sangat penting." },
+  { id:97, category:"介護の記録", term:"介護記録", reading:"かいごきろく", definition_ja:"利用者の状態・実施したケアの内容・変化などを記録した書類。事実を客観的・正確に記録することが求められる。", definition_id:"Catatan perawatan yang mendokumentasikan kondisi pengguna dan isi perawatan. Harus dicatat secara objektif dan akurat." },
+  { id:98, category:"介護の記録", term:"申し送り", reading:"もうしおくり", definition_ja:"勤務交代の際に、次のスタッフに利用者の状態や注意事項を伝えること。口頭・書面・電子記録で行う。", definition_id:"Serah terima informasi saat pergantian shift kepada staf berikutnya mengenai kondisi pengguna." },
+  { id:99, category:"介護の記録", term:"モニタリング", reading:"もにたりんぐ", definition_ja:"ケアプランの実施後、定期的に利用者の状態を観察・確認し、計画の効果を評価する過程。", definition_id:"Pemantauan berkala kondisi pengguna setelah pelaksanaan rencana perawatan untuk mengevaluasi efektivitasnya." },
+  { id:100, category:"介護の記録", term:"サービス担当者会議", reading:"さーびすたんとうしゃかいぎ", definition_ja:"ケアプランの作成・変更時に、ケアマネジャーが関係者を集めて行う会議。介護職・看護師・家族等が参加する。", definition_id:"Rapat yang dipimpin care manager saat membuat atau merevisi rencana perawatan. Dihadiri staf, perawat, keluarga, dan pihak terkait." },
+  { id:101, category:"専門職・倫理", term:"介護福祉士", reading:"かいごふくしし", definition_ja:"介護の専門国家資格。身体介護・生活援助を行い、利用者の自立支援と尊厳の保持を目的とする。", definition_id:"Kualifikasi nasional profesional perawatan. Memberikan perawatan fisik dan bantuan kehidupan untuk mendukung kemandirian dan martabat pengguna." },
+  { id:102, category:"専門職・倫理", term:"自己決定", reading:"じこけってい", definition_ja:"利用者が自分の生活・サービス・ケアについて自ら判断・選択する権利のこと。介護職は意思決定を支援する役割を持つ。", definition_id:"Hak pengguna membuat keputusan sendiri tentang kehidupan dan perawatannya. Petugas berperan mendukung pengambilan keputusan." },
+  { id:103, category:"専門職・倫理", term:"プライバシー", reading:"ぷらいばしー", definition_ja:"個人の私的な生活・情報が他人に干渉されない権利。排泄・入浴介助などの際はプライバシーの保護が重要。", definition_id:"Hak privasi individu. Dalam bantuan buang air atau mandi, perlindungan privasi sangat penting." },
+  { id:104, category:"専門職・倫理", term:"バーンアウト", reading:"ばーんあうと", definition_ja:"燃え尽き症候群。過度の業務負担・感情的消耗により、仕事への意欲や共感能力が失われる状態。介護職に多い。", definition_id:"Burnout atau sindrom kelelahan kerja. Hilangnya motivasi dan empati akibat beban kerja berlebihan. Umum terjadi pada petugas perawatan." },
+  { id:105, category:"専門職・倫理", term:"チームケア", reading:"ちーむけあ", definition_ja:"介護職・看護職・リハビリ職・医師・相談員など多職種が連携して利用者を支援するケアの形態。", definition_id:"Bentuk perawatan di mana berbagai profesi (perawat, rehabilitasi, dokter, konselor) bekerja sama mendukung pengguna." },
+  { id:106, category:"生活環境", term:"バリアフリー", reading:"ばりあふりー", definition_ja:"段差の解消・手すりの設置など、障害のある人や高齢者が生活しやすいよう物理的な障壁を取り除くこと。", definition_id:"Barrier-free: menghilangkan hambatan fisik seperti undakan dan memasang pegangan agar lansia dan disabilitas lebih nyaman." },
+  { id:107, category:"生活環境", term:"ユニバーサルデザイン", reading:"ゆにばーさるでざいん", definition_ja:"年齢・障害の有無・国籍などに関わらず、すべての人が使いやすいよう設計する考え方。バリアフリーより広い概念。", definition_id:"Desain universal: merancang sesuatu agar dapat digunakan oleh semua orang tanpa memandang usia, kemampuan, atau latar belakang." },
+  { id:108, category:"生活環境", term:"居室環境整備", reading:"きょしつかんきょうせいび", definition_ja:"利用者が安全・快適に過ごせるよう、ベッド周りやトイレ周りの環境を整えること。転倒予防にもつながる。", definition_id:"Penyesuaian lingkungan kamar agar pengguna nyaman dan aman. Juga berfungsi mencegah jatuh." },
+  { id:109, category:"生活環境", term:"熱中症（ねっちゅうしょう）", reading:"ねっちゅうしょう", definition_ja:"高温・多湿の環境で体内の水分・塩分が失われ体温調節ができなくなる病態。高齢者は感知しにくく特に危険。", definition_id:"Heat stroke akibat kehilangan cairan di lingkungan panas dan lembab. Sangat berbahaya bagi lansia karena berkurangnya rasa panas." },
+  { id:110, category:"介護の記録", term:"個人情報", reading:"こじんじょうほう", definition_ja:"特定の個人を識別できる情報（氏名・生年月日・住所・健康情報など）。適切に管理し、無断で第三者に提供してはならない。", definition_id:"Informasi yang dapat mengidentifikasi individu (nama, tanggal lahir, alamat, kesehatan). Tidak boleh diberikan ke pihak ketiga tanpa izin." },
+  { id:111, category:"こころとからだのしくみ", term:"誤嚥性肺炎", reading:"ごえんせいはいえん", definition_ja:"口の中の細菌を含む食べ物・唾液が気管・肺に入って起こる肺炎。高齢者に多く、口腔ケアで予防できる。", definition_id:"Pneumonia aspirasi yang terjadi akibat masuknya makanan atau air liur ke paru-paru. Umum pada lansia, dicegah dengan perawatan mulut." },
+  { id:112, category:"法律・制度", term:"居宅サービス", reading:"きょたくさーびす", definition_ja:"自宅に居ながら受けられる介護保険サービス。訪問介護・訪問看護・通所介護（デイサービス）などが含まれる。", definition_id:"Layanan asuransi perawatan yang diterima di rumah. Meliputi kunjungan perawatan, keperawatan, dan day service." },
+  { id:113, category:"専門職・倫理", term:"訪問介護員（ホームヘルパー）", reading:"ほうもんかいごいん", definition_ja:"利用者の自宅を訪問し、身体介護・生活援助を行う介護職員。介護職員初任者研修の修了が必要。", definition_id:"Pembantu perawatan kunjungan yang mengunjungi rumah untuk memberikan perawatan fisik dan bantuan kehidupan sehari-hari." },
+  { id:114, category:"安全", term:"感染症（かんせんしょう）", reading:"かんせんしょう", definition_ja:"細菌・ウイルス・真菌などの病原体が体内に侵入して起こる病気。介護施設ではノロウイルス・インフルエンザなどに注意。", definition_id:"Penyakit akibat patogen (bakteri, virus, jamur). Di fasilitas perawatan waspadai norovirus dan influenza." },
+  { id:115, category:"安全", term:"救急対応", reading:"きゅうきゅうたいおう", definition_ja:"心肺停止・窒息・骨折などの緊急事態に対する対応。119番通報・AEDの使用・心肺蘇生（CPR）などが含まれる。", definition_id:"Penanganan darurat untuk henti jantung, tersedak, patah tulang. Meliputi menghubungi 119, AED, dan CPR." },
+  { id:116, category:"こころとからだのしくみ", term:"低栄養（ていえいよう）", reading:"ていえいよう", definition_ja:"必要な栄養素が不足している状態。高齢者は食欲低下・嚥下障害などで起こりやすく、免疫低下・褥瘡悪化につながる。", definition_id:"Kurang gizi, yaitu kekurangan nutrisi yang diperlukan. Lansia rentan karena penurunan nafsu makan, dan dapat memperburuk daya tahan dan luka tekan." },
+  { id:117, category:"介護の基本", term:"利用者（りようしゃ）", reading:"りようしゃ", definition_ja:"介護サービスを受ける人のこと。「患者」ではなく「利用者」または「入居者」と呼ぶのが一般的。", definition_id:"Orang yang menerima layanan perawatan. Umumnya disebut 'pengguna layanan' atau 'penghuni', bukan 'pasien'." },
+  { id:118, category:"専門職・倫理", term:"倫理（りんり）", reading:"りんり", definition_ja:"介護職員として守るべき道徳的規範。利用者の尊厳・プライバシー・自己決定を尊重し、誠実に行動すること。", definition_id:"Etika profesional petugas perawatan: menghormati martabat, privasi, dan hak penentuan diri pengguna, serta bertindak jujur." },
+  { id:119, category:"認知症", term:"実行機能障害", reading:"じっこうきのうしょうがい", definition_ja:"料理・買い物・スケジュール管理など、複数の動作を計画的に行う力が低下する認知症の症状。", definition_id:"Gangguan fungsi eksekutif: penurunan kemampuan merencanakan dan melaksanakan kegiatan seperti memasak atau berbelanja." },
+  { id:120, category:"こころとからだのしくみ", term:"サルコペニア", reading:"さるこぺにあ", definition_ja:"加齢による筋肉量・筋力・身体機能の低下。フレイルの主な原因の一つ。適切な栄養と運動で予防できる。", definition_id:"Penurunan massa otot, kekuatan, dan fungsi fisik akibat penuaan. Salah satu penyebab frailty. Dicegah dengan nutrisi dan olahraga." }
+];
+
+// ===== STATE =====
+let filteredCards = [...CARDS];
+let currentIndex = 0;
+let isFlipped = false;
+let markedIds = JSON.parse(localStorage.getItem('kaigo_marked') || '[]');
+let seenIds = JSON.parse(localStorage.getItem('kaigo_seen') || '[]');
+let currentCat = 'すべて';
+
+// ===== CATEGORY BUTTONS =====
+function buildCatButtons() {
+  const cats = ['すべて', ...new Set(CARDS.map(c => c.category)), '⭐ スター'];
+  const wrap = document.getElementById('catButtons');
+  wrap.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (cat === currentCat ? ' active' : '');
+    const count = cat === 'すべて' ? CARDS.length :
+                  cat === '⭐ スター' ? markedIds.length :
+                  CARDS.filter(c => c.category === cat).length;
+    btn.textContent = `${cat}（${count}）`;
+    btn.onclick = () => selectCat(cat);
+    wrap.appendChild(btn);
+  });
+}
+
+function selectCat(cat) {
+  currentCat = cat;
+  if (cat === 'すべて') filteredCards = [...CARDS];
+  else if (cat === '⭐ スター') filteredCards = CARDS.filter(c => markedIds.includes(c.id));
+  else filteredCards = CARDS.filter(c => c.category === cat);
+  currentIndex = 0;
+  buildCatButtons();
+  renderCard();
+}
+
+// ===== CARD RENDER =====
+function renderCard() {
+  const panel = document.getElementById('resultPanel');
+  const cardArea = document.getElementById('cardArea');
+
+  if (filteredCards.length === 0) {
+    cardArea.style.display = 'none';
+    document.querySelector('.controls').style.display = 'none';
+    panel.innerHTML = '<p style="color:var(--text-sub);font-size:0.9rem;padding:40px 0;">このカテゴリにカードがありません</p>';
+    panel.classList.add('show');
+    updateHeader();
+    return;
+  }
+
+  panel.classList.remove('show');
+  cardArea.style.display = 'block';
+  document.querySelector('.controls').style.display = 'flex';
+
+  // unfip
+  setFlipped(false);
+
+  const card = filteredCards[currentIndex];
+  document.getElementById('frontCat').textContent = card.category;
+  // 表面：ルビONのとき用語にふりがな
+  if (appRubyEnabled && card.reading) {
+    document.getElementById('termKanji').innerHTML = `<ruby>${card.term}<rt>${card.reading}</rt></ruby>`;
+    document.getElementById('termReading').textContent = '';
+  } else {
+    document.getElementById('termKanji').textContent = card.term;
+    document.getElementById('termReading').textContent = card.reading;
+  }
+  document.getElementById('backCat').textContent = card.category;
+  document.getElementById('backTerm').textContent = card.term;
+  // 裏面：ルビONのとき定義文にふりがな
+  if (appRubyEnabled) {
+    document.getElementById('defJa').innerHTML = addRubyToText(card.definition_ja);
+  } else {
+    document.getElementById('defJa').textContent = card.definition_ja;
+  }
+  document.getElementById('defId').textContent = card.definition_id;
+  document.getElementById('cardNum').textContent = `${currentIndex + 1} / ${filteredCards.length}`;
+
+  // mark btn
+  const markBtn = document.getElementById('markBtn');
+  markBtn.textContent = markedIds.includes(card.id) ? '⭐ スター済' : '⭐ スター';
+  markBtn.classList.toggle('marked', markedIds.includes(card.id));
+
+  // progress
+  if (!seenIds.includes(card.id)) {
+    seenIds.push(card.id);
+    localStorage.setItem('kaigo_seen', JSON.stringify(seenIds));
+  }
+  updateProgress();
+  updateHeader();
+}
+
+function updateProgress() {
+  const total = filteredCards.length;
+  const seen = filteredCards.filter(c => seenIds.includes(c.id)).length;
+  const pct = total ? Math.round(seen / total * 100) : 0;
+  document.getElementById('progressLabel').textContent = `学習済み ${seen} / ${total} 枚`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function updateHeader() {
+  document.getElementById('headerCount').textContent = `${filteredCards.length} 枚`;
+}
+
+// ===== FLIP =====
+function setFlipped(val) {
+  isFlipped = val;
+  document.getElementById('cardArea').classList.toggle('flipped', val);
+}
+
+function flipCard() {
+  setFlipped(!isFlipped);
+}
+
+// ===== NAV =====
+function nextCard() {
+  if (currentIndex < filteredCards.length - 1) {
+    currentIndex++;
+    renderCard();
+  } else {
+    showResult();
+  }
+}
+
+function prevCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    renderCard();
+  }
+}
+
+function showResult() {
+  const total = filteredCards.length;
+  const seen = filteredCards.filter(c => seenIds.includes(c.id)).length;
+  const panel = document.getElementById('resultPanel');
+  document.getElementById('resultMsg').textContent =
+    `${total}枚中 ${seen}枚を学習しました！おつかれさまでした 🎉`;
+  panel.classList.add('show');
+  document.getElementById('cardArea').style.display = 'none';
+  document.querySelector('.controls').style.display = 'none';
+}
+
+function restartAll() {
+  currentIndex = 0;
+  document.getElementById('cardArea').style.display = 'block';
+  document.querySelector('.controls').style.display = 'flex';
+  document.getElementById('resultPanel').classList.remove('show');
+  renderCard();
+}
+
+// ===== SHUFFLE =====
+function shuffleCards() {
+  for (let i = filteredCards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+  }
+  currentIndex = 0;
+  renderCard();
+}
+
+// ===== MARK =====
+function toggleMark() {
+  const card = filteredCards[currentIndex];
+  if (!card) return;
+  if (markedIds.includes(card.id)) {
+    markedIds = markedIds.filter(id => id !== card.id);
+  } else {
+    markedIds.push(card.id);
+  }
+  localStorage.setItem('kaigo_marked', JSON.stringify(markedIds));
+  buildCatButtons();
+  renderCard();
+}
+
+// ===== RESET =====
+function resetProgress() {
+  if (!confirm('学習進捗をリセットしますか？')) return;
+  seenIds = [];
+  localStorage.removeItem('kaigo_seen');
+  currentIndex = 0;
+  renderCard();
+}
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') nextCard();
+  else if (e.key === 'ArrowLeft') prevCard();
+  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+});
+
+// ===== TOUCH SWIPE =====
+let touchStartX = 0;
+document.getElementById('cardArea').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+document.getElementById('cardArea').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) > 60) {
+    if (dx < 0) nextCard(); else prevCard();
+  } else {
+    flipCard();
+  }
+}, { passive: true });
+
+// ===== PASSWORD VISIBILITY TOGGLE =====
+function togglePwVisibility() {
+  const input = document.getElementById('loginInput');
+  const btn   = document.getElementById('togglePwBtn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+    btn.title = 'パスワードを隠す';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+    btn.title = 'パスワードを表示';
+  }
+}
+
+// ===== LOGIN =====
+const APP_PASSWORD = 'kansya2026'; // ← パスワードはここで変更できます
+
+function doLogin() {
+  const input = document.getElementById('loginInput').value;
+  if (input === APP_PASSWORD) {
+    localStorage.setItem('kaigo_auth', '1');
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginError').classList.remove('show');
+  } else {
+    document.getElementById('loginError').classList.add('show');
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').focus();
+  }
+}
+
+// 認証チェック：初回 or 未認証のときだけオーバーレイを表示
+if (localStorage.getItem('kaigo_auth') === '1') {
+  document.getElementById('loginOverlay').style.display = 'none';
+} else {
+  // オーバーレイを表示（本文は見えないようにする）
+  setTimeout(() => document.getElementById('loginInput').focus(), 100);
+}
+
+// ===========================
+// ===== QUIZ LOGIC ==========
+// ===========================
+let currentMode = 'flash';
+let quizQtype = 'mixed';    // 'mixed' | 'term2def' | 'def2term'
+let quizQnum  = 20;
+let quizDeck  = [];         // cards to quiz (shuffled)
+let quizIndex = 0;
+let quizScore = 0;
+let quizWrongCards = [];
+let quizCurrent = null;     // { card, type, choices, correctIndex }
+let isRetryMode = false;
+let showIdInQuiz  = false;  // インドネシア語表示フラグ
+let appRubyEnabled   = false; // グローバルルビフラグ
+let showIdInChoices  = false; // 選択肢インドネシア語表示フラグ
+
+// ===== 内蔵ルビ辞書 =====
+const RUBY_DICT = {
+  // 介護用語（長いものから先に並べる）
+  '地域包括支援センター':'ちいきほうかつしえんせんたー','地域包括ケアシステム':'ちいきほうかつけあしすてむ',
+  '高齢者虐待防止法':'こうれいしゃぎゃくたいぼうしほう','個人情報保護法':'こじんじょうほうほごほう',
+  '成年後見制度':'せいねんこうけんせいど','廃用症候群':'はいようしょうこうぐん',
+  '実行機能障害':'じっこうきのうしょうがい','見当識障害':'けんとうしきしょうがい',
+  '誤嚥性肺炎':'ごえんせいはいえん','血管性認知症':'けっかんせいにんちしょう',
+  '要介護認定':'ようかいごにんてい','標準予防策':'ひょうじゅんよぼうさく',
+  '中核症状':'ちゅうかくしょうじょう','周辺症状':'しゅうへんしょうじょう',
+  '介護保険制度':'かいごほけんせいど','身体拘束':'しんたいこうそく',
+  '守秘義務':'しゅひぎむ','介護過程':'かいごかてい','自立支援':'じりつしえん',
+  '多職種連携':'たしょくしゅれんけい','残存機能':'ざんぞんきのう',
+  '脱健着患':'だっけんちゃっかん','食形態':'しょくけいたい',
+  '機能訓練':'きのうくんれん','介護記録':'かいごきろく','転倒予防':'てんとうよぼう',
+  '感染経路':'かんせんけいろ','感染症':'かんせんしょう','救急対応':'きゅうきゅうたいおう',
+  '褥瘡予防':'じょくそうよぼう','誤嚥':'ごえん','褥瘡':'じょくそう',
+  '移乗介助':'いじょうかいじょ','体位変換':'たいいへんかん','清拭':'せいしき',
+  '嚥下':'えんげ','拘縮':'こうしゅく','浮腫':'ふしゅ','徘徊':'はいかい',
+  '傾聴':'けいちょう','共感':'きょうかん','受容':'じゅよう','尊厳':'そんげん',
+  '虐待':'ぎゃくたい','窒息':'ちっそく','倫理':'りんり',
+  '食事介助':'しょくじかいじょ','入浴介助':'にゅうよくかいじょ',
+  '排泄介助':'はいせつかいじょ','更衣介助':'こういかいじょ',
+  '歩行介助':'ほこうかいじょ','訪問介護':'ほうもんかいご',
+  '介護福祉士':'かいごふくしし','自己決定':'じこけってい',
+  '記憶障害':'きおくしょうがい','骨粗鬆症':'こつそしょうしょう',
+  '低栄養':'ていえいよう','脱水':'だっすい','便秘':'べんぴ','老化':'ろうか',
+  // 一般医療・介護語
+  '利用者':'りようしゃ','高齢者':'こうれいしゃ','介護':'かいご','施設':'しせつ',
+  '医療':'いりょう','予防':'よぼう','支援':'しえん','障害':'しょうがい',
+  '機能':'きのう','状態':'じょうたい','情報':'じょうほう','専門':'せんもん',
+  '提供':'ていきょう','管理':'かんり','評価':'ひょうか','計画':'けいかく',
+  '記録':'きろく','対応':'たいおう','原則':'げんそく','目的':'もくてき',
+  '医師':'いし','看護師':'かんごし','看護':'かんご','保険':'ほけん',
+  '制度':'せいど','法律':'ほうりつ','権利':'けんり','義務':'ぎむ',
+  '生活':'せいかつ','日常':'にちじょう','身体':'しんたい','精神':'せいしん',
+  '社会':'しゃかい','地域':'ちいき','家族':'かぞく','感染':'かんせん',
+  '事故':'じこ','転倒':'てんとう','食事':'しょくじ','排泄':'はいせつ',
+  '入浴':'にゅうよく','清潔':'せいけつ','栄養':'えいよう','皮膚':'ひふ',
+  '肺炎':'はいえん','認知症':'にんちしょう','記憶':'きおく','判断':'はんだん',
+  '行動':'こうどう','心理':'しんり','症状':'しょうじょう','訓練':'くんれん',
+  '口腔':'こうくう','筋肉':'きんにく','関節':'かんせつ','体温':'たいおん',
+  '脈拍':'みゃくはく','呼吸':'こきゅう','酸素':'さんそ','血液':'けつえき',
+  '血圧':'けつあつ','必要':'ひつよう','禁止':'きんし','報告':'ほうこく',
+  '連絡':'れんらく','相談':'そうだん','確認':'かくにん','個人':'こじん',
+  '選択':'せんたく','意思':'いし','同意':'どうい','保護':'ほご',
+  '連携':'れんけい','専門職':'せんもんしょく','患側':'かんそく','健側':'けんそく',
+  '実施':'じっし','作成':'さくせい','目標':'もくひょう','言語':'げんご',
+  // 補足語
+  '回想法':'かいそうほう','廃用':'はいよう','嚥下障害':'えんげしょうがい',
+  '起立性低血圧':'きりつせいていけつあつ','起立性':'きりつせい',
+  '感覚':'かんかく','触覚':'しょっかく','視覚':'しかく','聴覚':'ちょうかく',
+  '言葉':'ことば','場所':'ばしょ','時間':'じかん','理解':'りかい',
+  '自分':'じぶん','相手':'あいて','気持':'きもち','不安':'ふあん',
+  '危険':'きけん','安全':'あんぜん','注意':'ちゅうい','緊急':'きんきゅう',
+  '呼吸困難':'こきゅうこんなん','意識':'いしき','意識障害':'いしきしょうがい',
+  '体重':'たいじゅう','増加':'ぞうか','減少':'げんしょう','測定':'そくてい',
+  '自立':'じりつ','依存':'いぞん','促進':'そくしん','回復':'かいふく',
+  '適切':'てきせつ','不適切':'ふてきせつ','必須':'ひっす','基本':'きほん',
+  '重要':'じゅうよう','正確':'せいかく','適正':'てきせい','適度':'てきど',
+  '外出':'がいしゅつ','移動':'いどう','乗降':'じょうこう','段差':'だんさ',
+  '車椅子':'くるまいす','杖':'つえ','歩行器':'ほこうき','福祉用具':'ふくしようぐ',
+  '浴槽':'よくそう','洗身':'せんしん','洗髪':'せんぱつ','更衣':'こうい',
+  '失禁':'しっきん','頻尿':'ひんにょう','便意':'べんい','尿意':'にょうい',
+  '食欲':'しょくよく','嗜好':'しこう','水分':'すいぶん','補給':'ほきゅう',
+  '誤嚥予防':'ごえんよぼう','口腔ケア':'こうくうけあ','義歯':'ぎし',
+  '夜間':'やかん','巡視':'じゅんし','睡眠':'すいみん','覚醒':'かくせい',
+  '興奮':'こうふん','不穏':'ふおん','拒否':'きょひ','暴力':'ぼうりょく',
+  '暴言':'ぼうげん','幻覚':'げんかく','妄想':'もうそう','抑うつ':'よくうつ',
+  '摘便':'てきべん','浣腸':'かんちょう','導尿':'どうにょう','採尿':'さいにょう',
+  '褥瘡処置':'じょくそうしょち','包帯':'ほうたい','消毒':'しょうどく',
+  '血糖':'けっとう','インスリン':'いんすりん','透析':'とうせき',
+  '介護支援専門員':'かいごしえんせんもんいん','ケアマネジャー':'けあまねじゃー',
+  '訪問看護':'ほうもんかんご','デイサービス':'でいさーびす',
+  '特別養護老人ホーム':'とくべつようごろうじんほーむ',
+  '老人保健施設':'ろうじんほけんしせつ','居宅':'きょたく','在宅':'ざいたく',
+};
+
+// 長い順に並べたエントリ（部分一致ミス防止）
+const RUBY_ENTRIES = Object.entries(RUBY_DICT)
+  .sort((a, b) => b[0].length - a[0].length);
+
+function addRubyToText(plainText) {
+  if (!plainText) return plainText;
+  // マーカーで置換して二重処理を防ぐ
+  let s = plainText;
+  const marks = [];
+  for (const [term, reading] of RUBY_ENTRIES) {
+    if (s.includes(term)) {
+      const marker = `\x00${marks.length}\x00`;
+      marks.push(`<ruby>${term}<rt>${reading}</rt></ruby>`);
+      s = s.split(term).join(marker);
+    }
+  }
+  // マーカーをHTMLに戻す
+  s = s.replace(/\x00(\d+)\x00/g, (_, i) => marks[Number(i)]);
+  return s;
+}
+
+// ===== INIT =====
+buildCatButtons();
+renderCard();
+
+// ===== グローバルルビトグル =====
+function toggleGlobalRuby() {
+  appRubyEnabled = !appRubyEnabled;
+  const sw = document.getElementById('globalRubySwitch');
+  const txt = document.getElementById('globalRubyText');
+  txt.textContent = appRubyEnabled ? 'ON' : 'OFF';
+  txt.classList.toggle('on', appRubyEnabled);
+  sw.classList.toggle('on', appRubyEnabled);
+  // 現在の画面を再描画
+  if (currentMode === 'flash') {
+    renderCard();
+  } else if (quizCurrent) {
+    renderQuizQuestion_reapply();
+  }
+}
+
+function renderQuizQuestion_reapply() {
+  // 問題テキストと選択肢だけ再適用（状態は変えない）
+  if (!quizCurrent) return;
+  const { card, type } = quizCurrent;
+  if (type === 'term2def') {
+    document.getElementById('qQuestionText').innerHTML =
+      appRubyEnabled ? `「<ruby>${card.term}<rt>${card.reading||''}</rt></ruby>」` : `「${card.term}」`;
+  } else {
+    document.getElementById('qQuestionText').innerHTML =
+      appRubyEnabled ? addRubyToText(card.definition_ja) : card.definition_ja;
+  }
+  rerenderChoiceLabels();
+}
+
+// ---- mode switch ----
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById('flashScreen').classList.toggle('hidden', mode !== 'flash');
+  document.getElementById('quizScreen').classList.toggle('active',  mode === 'quiz');
+  document.getElementById('tabFlash').classList.toggle('active', mode === 'flash');
+  document.getElementById('tabQuiz').classList.toggle('active',  mode === 'quiz');
+  document.getElementById('bottomBarFlash').style.display = mode === 'flash' ? 'flex' : 'none';
+  document.getElementById('bottomBarQuiz').classList.toggle('active', mode === 'quiz');
+  // cat wrap: show always (works for both modes)
+  if (mode === 'quiz') {
+    showQuizStart();
+  }
+}
+
+// ---- quiz type selection ----
+function selectQtype(type) {
+  quizQtype = type;
+  ['optMixed','optTerm2Def','optDef2Term'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  const map = { mixed:'optMixed', term2def:'optTerm2Def', def2term:'optDef2Term' };
+  document.getElementById(map[type]).classList.add('selected');
+}
+
+function selectQnum(n) {
+  quizQnum = n;
+  ['qnum10','qnum20','qnumAll'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  const map = { 10:'qnum10', 20:'qnum20', 0:'qnumAll' };
+  document.getElementById(map[n]).classList.add('selected');
+}
+
+// ---- show start screen ----
+function showQuizStart() {
+  document.getElementById('quizStartScreen').style.display = 'block';
+  document.getElementById('quizQuestionScreen').style.display = 'none';
+  document.getElementById('quizResultScreen').classList.remove('show');
+}
+
+// ---- start quiz ----
+function startQuiz(retryCards) {
+  const pool = retryCards || filteredCards;
+  if (pool.length < 4) {
+    alert('このカテゴリの用語が4枚未満です。「すべて」を選んでください。');
+    return;
+  }
+  // shuffle pool
+  quizDeck = [...pool].sort(() => Math.random() - 0.5);
+  if (!retryCards && quizQnum > 0) quizDeck = quizDeck.slice(0, quizQnum);
+  quizIndex = 0;
+  quizScore = 0;
+  quizWrongCards = [];
+  document.getElementById('quizStartScreen').style.display = 'none';
+  document.getElementById('quizQuestionScreen').style.display = 'block';
+  document.getElementById('quizResultScreen').classList.remove('show');
+  renderQuizQuestion();
+}
+
+// ---- generate question ----
+function generateQuestion(card, type) {
+  // pick 3 wrong cards from CARDS (different from current card)
+  const others = CARDS.filter(c => c.id !== card.id)
+                      .sort(() => Math.random() - 0.5).slice(0, 3);
+  const correctIdx = Math.floor(Math.random() * 4);
+  const choices = [...others];
+  choices.splice(correctIdx, 0, card);
+  return { card, type, choices, correctIdx };
+}
+
+// ---- render question ----
+function renderQuizQuestion() {
+  const card = quizDeck[quizIndex];
+  // pick type
+  let type = quizQtype;
+  if (type === 'mixed') type = Math.random() < 0.5 ? 'term2def' : 'def2term';
+
+  quizCurrent = generateQuestion(card, type);
+
+  // score bar
+  const total = quizDeck.length;
+  const pct = total ? Math.round(quizScore / Math.max(quizIndex, 1) * 100) : 0;
+  document.getElementById('qScoreCorrect').textContent = quizScore;
+  document.getElementById('qScoreTotal').textContent = total;
+  document.getElementById('qMiniFill').style.width = (quizIndex / total * 100) + '%';
+  document.getElementById('qScorePct').textContent =
+    quizIndex > 0 ? Math.round(quizScore / quizIndex * 100) + '%' : '-';
+  document.getElementById('qNumLabel').textContent = `第${quizIndex + 1}問 / ${total}問`;
+
+  // question
+  if (type === 'term2def') {
+    document.getElementById('qTypeLabel').textContent = '用語→意味';
+    if (appRubyEnabled && card.reading) {
+      document.getElementById('qQuestionText').innerHTML =
+        `「<ruby>${card.term}<rt>${card.reading}</rt></ruby>」`;
+      document.getElementById('qQuestionSub').textContent = 'の意味はどれですか？';
+    } else {
+      document.getElementById('qQuestionText').textContent = `「${card.term}」`;
+      document.getElementById('qQuestionSub').textContent =
+        card.reading ? `（${card.reading}）の意味はどれですか？` : 'の意味はどれですか？';
+    }
+  } else {
+    document.getElementById('qTypeLabel').textContent = '意味→用語';
+    if (appRubyEnabled) {
+      document.getElementById('qQuestionText').innerHTML = addRubyToText(card.definition_ja);
+    } else {
+      document.getElementById('qQuestionText').textContent = card.definition_ja;
+    }
+    document.getElementById('qQuestionSub').textContent = '上の説明にあてはまる用語はどれですか？';
+  }
+
+  // choices
+  quizCurrent.choices.forEach((c, i) => {
+    const btn = document.getElementById('choice' + i);
+    btn.className = 'quiz-choice';
+    btn.disabled = false;
+  });
+  rerenderChoiceLabels();
+
+  // インドネシア語トグルは term2def のときだけ表示
+  document.getElementById('qChoiceIdToggleBtn').style.display =
+    type === 'term2def' ? 'inline-flex' : 'none';
+  applyChoiceIdState();
+
+  // インドネシア語エリアをセット・状態を維持
+  document.getElementById('qIdText').textContent = card.definition_id;
+  applyQuizIdState();
+
+  // reset feedback
+  const fb = document.getElementById('qFeedback');
+  fb.className = 'quiz-feedback';
+  document.getElementById('qNextBtn').className = 'quiz-next-btn';
+}
+
+function toggleQuizId() {
+  showIdInQuiz = !showIdInQuiz;
+  applyQuizIdState();
+}
+
+
+function choiceHTML(card, type) {
+  if (type === 'term2def') {
+    // 意味文：グローバルルビONならふりがな付き
+    const jaText = appRubyEnabled ? addRubyToText(card.definition_ja) : card.definition_ja;
+    const useHtml = appRubyEnabled || showIdInChoices;
+    if (showIdInChoices && card.definition_id) {
+      return { html: true, text:
+        `<span style="display:block;line-height:1.7;">${jaText}</span>` +
+        `<span style="display:block;margin-top:7px;padding-top:7px;border-top:1px solid rgba(0,0,0,0.1);font-size:0.78em;font-weight:normal;color:#6b7280;line-height:1.5;">` +
+        `<span style="font-size:0.7em;font-weight:bold;color:#b45309;margin-right:4px;">🇮🇩</span>${card.definition_id}</span>`
+      };
+    }
+    return { html: useHtml, text: jaText };
+  }
+  // 選択肢は用語（def2term）：グローバルルビONなら読みを付ける
+  if (appRubyEnabled && card.reading) {
+    return { html: true, text: `<ruby>${card.term}<rt>${card.reading}</rt></ruby>` };
+  }
+  return { html: false, text: card.term };
+}
+
+
+function toggleChoiceId() {
+  showIdInChoices = !showIdInChoices;
+  applyChoiceIdState();
+  rerenderChoiceLabels();
+}
+
+function applyChoiceIdState() {
+  const btn   = document.getElementById('qChoiceIdToggleBtn');
+  const label = document.getElementById('qChoiceIdToggleLabel');
+  if (!btn) return;
+  if (showIdInChoices) {
+    btn.classList.add('active');
+    label.textContent = 'インドネシア語あり';
+  } else {
+    btn.classList.remove('active');
+    label.textContent = 'インドネシア語なし';
+  }
+}
+
+function rerenderChoiceLabels() {
+  if (!quizCurrent) return;
+  const { type, choices } = quizCurrent;
+  choices.forEach((c, i) => {
+    const btn = document.getElementById('choice' + i);
+    if (!btn) return;
+    const { html, text } = choiceHTML(c, type);
+    if (html) btn.innerHTML = text;
+    else btn.textContent = text;
+  });
+}
+
+function applyQuizIdState() {
+  const btn   = document.getElementById('qIdToggleBtn');
+  const box   = document.getElementById('qIdBox');
+  const label = document.getElementById('qIdToggleLabel');
+  if (showIdInQuiz) {
+    box.classList.add('show');
+    btn.classList.add('active');
+    label.textContent = 'インドネシア語を隠す';
+  } else {
+    box.classList.remove('show');
+    btn.classList.remove('active');
+    label.textContent = 'インドネシア語を表示';
+  }
+}
+
+// ---- handle answer ----
+function handleAnswer(chosenIdx) {
+  const { card, type, choices, correctIdx } = quizCurrent;
+  const isCorrect = chosenIdx === correctIdx;
+
+  // disable all
+  for (let i = 0; i < 4; i++) document.getElementById('choice' + i).disabled = true;
+
+  // color buttons
+  document.getElementById('choice' + correctIdx).classList.add('correct');
+  if (!isCorrect) document.getElementById('choice' + chosenIdx).classList.add('wrong');
+
+  // feedback
+  const fb = document.getElementById('qFeedback');
+  fb.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'ng');
+  document.getElementById('fbAnswer').textContent =
+    isCorrect ? '✅ 正解！' : `❌ 不正解　正解：「${card.term}」`;
+  document.getElementById('fbDef').textContent = card.definition_ja;
+  document.getElementById('fbDefIdText').textContent = card.definition_id;
+
+  // score
+  if (isCorrect) {
+    quizScore++;
+  } else {
+    if (!quizWrongCards.find(c => c.id === card.id)) quizWrongCards.push(card);
+  }
+
+  // update score bar immediately
+  const total = quizDeck.length;
+  document.getElementById('qScoreCorrect').textContent = quizScore;
+  if (quizIndex + 1 > 0) {
+    document.getElementById('qScorePct').textContent =
+      Math.round(quizScore / (quizIndex + 1) * 100) + '%';
+  }
+
+  // next button
+  document.getElementById('qNextBtn').className = 'quiz-next-btn show';
+  document.getElementById('qNextBtn').textContent =
+    quizIndex + 1 >= total ? '結果を見る ›' : '次の問題 ›';
+}
+
+// ---- next question ----
+function nextQuizQuestion() {
+  quizIndex++;
+  if (quizIndex >= quizDeck.length) {
+    showQuizResult();
+  } else {
+    renderQuizQuestion();
+  }
+}
+
+// ---- result ----
+function showQuizResult() {
+  document.getElementById('quizQuestionScreen').style.display = 'none';
+  const total = quizDeck.length;
+  const pct = Math.round(quizScore / total * 100);
+  let emoji = '😢', title = 'もう少し！';
+  if (pct >= 80) { emoji = '🎉'; title = '素晴らしい！'; }
+  else if (pct >= 60) { emoji = '😊'; title = 'よくできました！'; }
+  else if (pct >= 40) { emoji = '🙂'; title = 'もう一息！'; }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultScoreDisplay').textContent = `${quizScore} / ${total}`;
+  document.getElementById('resultScoreLabel').textContent = `正解率 ${pct}%`;
+  document.getElementById('rcCorrect').textContent = quizScore;
+  document.getElementById('rcWrong').textContent = total - quizScore;
+
+  const retryBtn = document.getElementById('retryWrongBtn');
+  if (quizWrongCards.length > 0) {
+    retryBtn.style.display = '';
+    retryBtn.textContent = `❌ 間違えた${quizWrongCards.length}問を復習`;
+  } else {
+    retryBtn.style.display = 'none';
+  }
+
+  document.getElementById('quizResultScreen').classList.add('show');
+}
+
+// ---- retry wrong ----
+function retryWrong() {
+  if (quizWrongCards.length === 0) return;
+  startQuiz(quizWrongCards);
+}
+</script>
+</body>
+</html>
