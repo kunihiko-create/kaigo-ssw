@@ -174,11 +174,31 @@
   }
   .btn-shuffle { background: var(--green-light); color: var(--green); }
   .btn-shuffle:hover { background: var(--green-mid); }
+  @keyframes shufflePop {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(0.92) rotate(-8deg); }
+    60%  { transform: scale(1.06) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .btn-shuffle.shuffling { animation: shufflePop 0.45s ease; }
   .btn-reset { background: #fff3e0; color: #d97706; }
   .btn-reset:hover { background: #ffe0b2; }
   .btn-mark { background: var(--gray-light); color: var(--gray); }
   .btn-mark.marked { background: #fef3c7; color: #d97706; }
   .btn-mark:hover { background: #e5e7eb; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1f2937; color: white;
+    padding: 10px 22px; border-radius: 24px;
+    font-size: 0.85rem; font-weight: bold;
+    white-space: nowrap; z-index: 999;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ===== RESULT PANEL ===== */
   .result-panel {
@@ -542,6 +562,9 @@
   <div class="quiz-start-screen" id="quizStartScreen">
     <h2>📝 4択練習</h2>
     <p>出題形式と問題数を選んでスタート！<br>カテゴリは上のタブで絞り込めます。</p>
+    <div id="quizCatBadge" style="display:inline-flex; align-items:center; gap:6px; background:var(--green-light); color:var(--green-dark); border-radius:20px; padding:5px 14px; font-size:0.82rem; font-weight:bold; margin-bottom:14px;">
+      📂 <span id="quizCatName">すべて</span>（<span id="quizCatCount">120</span>枚）
+    </div>
     <div class="quiz-start-options">
       <button class="quiz-opt-btn selected" id="optMixed" onclick="selectQtype('mixed')">
         <span class="opt-icon">🔀</span>
@@ -874,7 +897,23 @@ function selectCat(cat) {
   else filteredCards = CARDS.filter(c => c.category === cat);
   currentIndex = 0;
   buildCatButtons();
-  renderCard();
+
+  if (currentMode === 'flash') {
+    renderCard();
+  } else {
+    // クイズモード：問題画面中なら即リスタート、スタート画面なら件数だけ更新
+    const onQuestion = document.getElementById('quizQuestionScreen').style.display !== 'none';
+    if (onQuestion) {
+      if (filteredCards.length < 4) {
+        alert('このカテゴリのカードが4枚未満のため、クイズを開始できません。');
+        showQuizStart();
+        return;
+      }
+      startQuiz();
+    } else {
+      showQuizStart();
+    }
+  }
 }
 
 // ===== CARD RENDER =====
@@ -924,11 +963,6 @@ function renderCard() {
   markBtn.textContent = markedIds.includes(card.id) ? '⭐ スター済' : '⭐ スター';
   markBtn.classList.toggle('marked', markedIds.includes(card.id));
 
-  // progress
-  if (!seenIds.includes(card.id)) {
-    seenIds.push(card.id);
-    localStorage.setItem('kaigo_seen', JSON.stringify(seenIds));
-  }
   updateProgress();
   updateHeader();
 }
@@ -954,6 +988,16 @@ function setFlipped(val) {
 
 function flipCard() {
   setFlipped(!isFlipped);
+  // 裏面を見たとき（意味を確認したとき）に学習済みとしてカウント
+  if (isFlipped) {
+    const card = filteredCards[currentIndex];
+    if (card && !seenIds.includes(card.id)) {
+      seenIds.push(card.id);
+      localStorage.setItem('kaigo_seen', JSON.stringify(seenIds));
+      updateProgress();
+      updateHeader();
+    }
+  }
 }
 
 // ===== NAV =====
@@ -1000,6 +1044,13 @@ function shuffleCards() {
   }
   currentIndex = 0;
   renderCard();
+  showToast(`🔀 ${filteredCards.length}枚をシャッフルしました`);
+  // ボタンにアニメーション
+  const btn = document.querySelector('.btn-shuffle');
+  btn.classList.remove('shuffling');
+  void btn.offsetWidth; // reflow
+  btn.classList.add('shuffling');
+  setTimeout(() => btn.classList.remove('shuffling'), 500);
 }
 
 // ===== MARK =====
@@ -1023,6 +1074,7 @@ function resetProgress() {
   localStorage.removeItem('kaigo_seen');
   currentIndex = 0;
   renderCard();
+  showToast('↺ 学習進捗をリセットしました');
 }
 
 // ===== KEYBOARD =====
@@ -1270,6 +1322,9 @@ function showQuizStart() {
   document.getElementById('quizStartScreen').style.display = 'block';
   document.getElementById('quizQuestionScreen').style.display = 'none';
   document.getElementById('quizResultScreen').classList.remove('show');
+  // カテゴリバッジ更新
+  document.getElementById('quizCatName').textContent = currentCat;
+  document.getElementById('quizCatCount').textContent = filteredCards.length;
 }
 
 // ---- start quiz ----
@@ -1366,12 +1421,6 @@ function renderQuizQuestion() {
   document.getElementById('qNextBtn').className = 'quiz-next-btn';
 }
 
-function toggleQuizId() {
-  showIdInQuiz = !showIdInQuiz;
-  applyQuizIdState();
-}
-
-
 function choiceHTML(card, type) {
   if (type === 'term2def') {
     // 意味文：グローバルルビONならふりがな付き
@@ -1391,6 +1440,12 @@ function choiceHTML(card, type) {
     return { html: true, text: `<ruby>${card.term}<rt>${card.reading}</rt></ruby>` };
   }
   return { html: false, text: card.term };
+}
+
+
+function toggleQuizId() {
+  showIdInQuiz = !showIdInQuiz;
+  applyQuizIdState();
 }
 
 
@@ -1524,6 +1579,18 @@ function retryWrong() {
   if (quizWrongCards.length === 0) return;
   startQuiz(quizWrongCards);
 }
+
+// ===== TOAST =====
+let _toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
 </script>
+
+<div class="toast" id="toast"></div>
 </body>
 </html>
